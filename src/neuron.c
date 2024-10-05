@@ -4,10 +4,17 @@
 #include <string.h>
 #include "neuron.h"
 
-Neuron* Neuron_create(int neuronId, const char* neuronName, const char* neuronShort, float (*neuronCalculation)(Neuron*)) {
+Neuron* Neuron_create(
+    const int neuronType,
+    const int neuronId,
+    const char* neuronName,
+    const char* neuronShort,
+    float (*neuronCalculation)(struct Neuron*)
+) {
     Neuron* neuron = (Neuron*)malloc(sizeof(Neuron));
     if (!neuron) return NULL;
 
+    neuron->neuronType = neuronType;
     neuron->neuronId = neuronId;
     strncpy(neuron->neuronName, neuronName, sizeof(neuron->neuronName) - 1);
     neuron->neuronName[sizeof(neuron->neuronName) - 1] = '\0';

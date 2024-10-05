@@ -3,7 +3,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include "creature.h"
+#include "neuron.h"
 #include "neuron_calculations.c"
+#include "config.h"
 
 
 // Notes
@@ -14,8 +16,9 @@
 
 
 // Consts
-#define GRID_X 20
-#define GRID_Y 20
+
+#define NEURON_LIST_SIZE 64
+#define MAX_INNER_NEURON_COUNT 100 // do not change, naming will go brr
 
 int grid[GRID_Y][GRID_X];
 
@@ -31,22 +34,63 @@ void printGrid() {
 int main() {
     srand(time(NULL));
 
+    Neuron* sensorNeurons[NEURON_LIST_SIZE];
+    Neuron* actionNeurons[NEURON_LIST_SIZE];
+    Neuron* innerNeurons[NEURON_LIST_SIZE];
+
+
+    //Neuron_create(0, 0, "Random", "Rnd", computeTest);
+
+    sensorNeurons[0] = Neuron_create(0, 0, "Random", "Rnd", computeTest);
+    actionNeurons[0] = Neuron_create(2, 0, "MoveRandom", "MRn", computeTest);
+
+
+    if (INNER_NEURONS > NEURON_LIST_SIZE) {
+        fprintf(stderr, "You can not have more inner neurons than max cap stored in 'NEURON_LIST_SIZE'!\n");
+        return 1;
+    } else if (INNER_NEURONS > MAX_INNER_NEURON_COUNT) {
+        fprintf(stderr, "You can not have more than %d inner neurons!\n", MAX_INNER_NEURON_COUNT);
+        return 1;
+    }
+    
+    char nameBuffer[32];
+    char shortNameBuffer[4];
+    for (int i = 0; i < INNER_NEURONS; i++) {
+        sprintf(nameBuffer, "Inner%02d", i);
+        sprintf(shortNameBuffer, "I%02d", i);
+        innerNeurons[i] = Neuron_create(1, i, nameBuffer, shortNameBuffer, computeInner);
+    }
+
+    
+
+    // GRID creation
     for (int i = 0; i < GRID_Y; i++) {
         for (int j = 0; j < GRID_X; j++) {
             grid[i][j] = 0;
         }
     }
 
-    Creature* creature1 = Creature_create(1);
+    Creature* genOfCreatures[CREATURES_IN_GEN];
+    for (int i = 0; i < CREATURES_IN_GEN; i++) {
+        genOfCreatures[i] = Creature_create(i);
+    }
 
-    if (creature1) {
+
+    if (genOfCreatures[0]) {
         for (int i = 0; i < BRAIN_SIZE; i++) {
-            printf("%x\n", creature1->brain[i]);
+            printf("%x\n", genOfCreatures[0]->brain[i]);
         }
     }
 
-    Creature_destroy(creature1);
+    for (int i = 0; i < CREATURES_IN_GEN; i++) {
+        Creature_destroy(genOfCreatures[i]);
+    }
 
+    for (int i = 0; i < NEURON_LIST_SIZE; i++) {
+        Neuron_destroy(sensorNeurons[i]);
+        Neuron_destroy(innerNeurons[i]);
+        Neuron_destroy(actionNeurons[i]);
+    }
     
     // printGrid();
 
