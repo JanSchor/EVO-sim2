@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "creature.h"
+#include "config.h"
 
 Creature* Creature_create(int creatureId) {
     Creature* creature = (Creature*)malloc(sizeof(Creature));

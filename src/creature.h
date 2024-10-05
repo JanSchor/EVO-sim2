@@ -1,10 +1,9 @@
 
 #include "genome.h"
+#include "config.h"
 
 #ifndef CREATURE_H
 #define CREATURE_H
-
-#define BRAIN_SIZE 5
 
 typedef struct Creature {
     int creatureId;
