@@ -1,4 +1,6 @@
 
+#include "creature.h"
+
 #ifndef NEURON_H
 #define NEURON_H
 
@@ -7,7 +9,8 @@ typedef struct Neuron {
     int neuronId;
     char neuronName[32];
     char neuronShort[4];
-    float (*neuronCalculation)(struct Neuron*);
+    float (*neuronCalculation)(struct Creature*);
+    float neuronDefValue;
 } Neuron;
 
 Neuron* Neuron_create(
@@ -15,7 +18,7 @@ Neuron* Neuron_create(
     const int neuronId,
     const char* neuronName,
     const char* neuronShort,
-    float (*neuronCalculation)(struct Neuron*)
+    float (*neuronCalculation)(struct Creature*)
 );
 
 void Neuron_destroy(Neuron* neuron);

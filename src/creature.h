@@ -12,10 +12,15 @@ typedef struct Creature {
     int gridPosY;
 } Creature;
 
+void initializeNeurons();
+void destroyNeurons();
+
 Creature* Creature_create(int creatureId, int gridPosX, int gridPosY);
 void Creature_destroy(Creature* creature);
 
 void printInfoCreature(Creature* creature);
+
+void calculateCreatureSensory(Creature* creature);
 
 
 
