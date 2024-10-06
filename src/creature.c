@@ -5,11 +5,13 @@
 #include "creature.h"
 #include "config.h"
 
-Creature* Creature_create(int creatureId) {
+Creature* Creature_create(int creatureId, int gridPosX, int gridPosY) {
     Creature* creature = (Creature*)malloc(sizeof(Creature));
     if (!creature) return NULL;
 
     creature->creatureId = creatureId;
+    creature->gridPosX = gridPosX;
+    creature->gridPosY = gridPosY;
 
     for (int i = 0; i < BRAIN_SIZE; i++) {
         creature->brain[i] = *Genome_create();
@@ -23,4 +25,13 @@ void Creature_destroy(Creature* creature) {
         free(creature);
         // destroy brain
     }
+}
+
+void printInfoCreature(Creature* creature) {
+    printf(
+        "Creature id: %d\nCreature x pos: %d\nCreature y pos: %d\n",
+        creature->creatureId,
+        creature->gridPosX,
+        creature->gridPosY
+    );
 }

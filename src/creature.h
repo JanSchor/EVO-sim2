@@ -8,11 +8,15 @@
 typedef struct Creature {
     int creatureId;
     Genome brain[BRAIN_SIZE];
+    int gridPosX;
+    int gridPosY;
 } Creature;
 
-Creature* Creature_create(int creatureId);
-
+Creature* Creature_create(int creatureId, int gridPosX, int gridPosY);
 void Creature_destroy(Creature* creature);
+
+void printInfoCreature(Creature* creature);
+
 
 
 #endif // CREATURE_H

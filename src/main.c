@@ -3,8 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include<windows.h>
 #include "creature.h"
 #include "neuron.h"
+#include "grid.h"
 #include "neuron_calculations.c"
 #include "config.h"
 
@@ -19,7 +21,7 @@
 
 // Defines
 #define NEURON_LIST_SIZE 64
-#define MAX_INNER_NEURON_COUNT 100 // better to not change, naming will go brr
+#define MAX_INNER_NEURON_COUNT 100 // better to not change, naming will go brrr
 
 // Grid
 int grid[GRID_Y][GRID_X];
@@ -27,14 +29,7 @@ int grid[GRID_Y][GRID_X];
 
 
 // Functions
-void printGrid() {
-    for (int i = 0; i < GRID_Y; i++) {
-        for (int j = 0; j < GRID_X; j++) {
-            printf("%d ", grid[i][j] = 0);
-        }
-        printf("\n");
-    }
-}
+
 
 
 // Main function
@@ -66,38 +61,32 @@ int main() {
     sensorNeurons[0] = Neuron_create(0, 0, "Random", "Rnd", computeTest);
 
     // Action neurons creation
-    actionNeurons[0] = Neuron_create(2, 0, "MoveRandom", "MRn", computeTest);
+    actionNeurons[0] = Neuron_create(2, 0, "MoveRandom", "MvR", computeTest);
 
     // Inner neurons creation
     char nameBuffer[32];
     char shortNameBuffer[4];
     for (int i = 0; i < INNER_NEURONS; i++) {
-        sprintf(nameBuffer, "Inner%02d", i); // %02d gets nums from 00 - 99 based on 'i'
+        sprintf(nameBuffer, "Inner%02d", i); // %02d gets nums from 00 - 99 based on 'i' (cap for inner neurons is at 100, stored in 'MAX_INNER_NEURON_COUNT')
         sprintf(shortNameBuffer, "I%02d", i);
         innerNeurons[i] = Neuron_create(1, i, nameBuffer, shortNameBuffer, computeInner);
     }
 
-    
-    // GRID creation
-    for (int i = 0; i < GRID_Y; i++) {
-        for (int j = 0; j < GRID_X; j++) {
-            grid[i][j] = 0;
-        }
-    }
+    Grid* grid = Grid_create();
+
 
     // Creating list of creatures
-    Creature* genOfCreatures[CREATURES_IN_GEN];
+    int (*validGridCoords)[2];
+    Creature* genOfCreatures[CREATURES_IN_GEN]; //check ids
     for (int i = 0; i < CREATURES_IN_GEN; i++) {
-        genOfCreatures[i] = Creature_create(i);
+        validGridCoords = findEmptySpaceGrid(grid);
+        setGrid(grid, (*validGridCoords)[0], (*validGridCoords)[1], 10000+i);
+        genOfCreatures[i] = Creature_create(i, (*validGridCoords)[0], (*validGridCoords)[1]);
     }
 
-    // Printing some info - ONLY TESTING
-    if (genOfCreatures[0]) {
-        for (int i = 0; i < BRAIN_SIZE; i++) {
-            printf("%x\n", genOfCreatures[0]->brain[i]);
-        }
-    }
-
+    //printGrid(grid);
+    //printInfoCreature(genOfCreatures[0]);
+    
     // Destroying creatures
     for (int i = 0; i < CREATURES_IN_GEN; i++) {
         Creature_destroy(genOfCreatures[i]);
@@ -109,6 +98,7 @@ int main() {
         Neuron_destroy(innerNeurons[i]);
         Neuron_destroy(actionNeurons[i]);
     }
+    Grid_destroy(grid);
     
     // printGrid();
 
