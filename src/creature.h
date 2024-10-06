@@ -10,7 +10,7 @@ typedef struct Creature {
     Genome brain[BRAIN_SIZE];
 } Creature;
 
-Creature* Creature_create(int creatureId); //params
+Creature* Creature_create(int creatureId);
 
 void Creature_destroy(Creature* creature);
 

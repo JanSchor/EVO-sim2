@@ -21,5 +21,6 @@ Creature* Creature_create(int creatureId) {
 void Creature_destroy(Creature* creature) {
     if (creature) {
         free(creature);
+        // destroy brain
     }
 }
