@@ -7,6 +7,7 @@
 #include "neuron.h"
 #include "neuron_calculations.c"
 #include "globals.h"
+#include "genome.h"
 
 Neuron* sensorNeurons[NEURON_LIST_SIZE];
 Neuron* actionNeurons[NEURON_LIST_SIZE];
@@ -16,6 +17,10 @@ int neuronsInitialized = 0;
 void initializeNeurons() {
     if (neuronsInitialized) return;
 
+    // When creating new neurons, update 'SENSORY_NEURONS', 'INNER_NEURONS', 'ACTION_NEURONS' in 'config.h' !!!
+    // At least for now, hope to make it more automatic in future.
+
+    // Sensory neurons
     sensorNeurons[0] = Neuron_create(0, 0, "Random", "Rnd", sensoryRandom);
     sensorNeurons[1] = Neuron_create(0, 1, "Age", "Age", sensoryAge);
     sensorNeurons[2] = Neuron_create(0, 2, "PositionX", "PoX", sensoryPositionX);
@@ -60,8 +65,19 @@ Creature* Creature_create(int creatureId, int gridPosX, int gridPosY) {
     creature->gridPosX = gridPosX;
     creature->gridPosY = gridPosY;
 
+    for (int i = 0; i < INNER_NEURONS; i++) creature->innerSinkCount[i] = 0;
+    for (int i = 0; i < ACTION_NEURONS; i++) creature->actionSinkCount[i] = 0;
+
     for (int i = 0; i < BRAIN_SIZE; i++) {
         creature->brain[i] = *Genome_create();
+        int sinkId = getSinkId((creature->brain[i]).connection);
+        if (getSink((creature->brain[i]).connection) == 0) {
+            creature->brainsInnerNeuronsSink[sinkId][creature->innerSinkCount[sinkId]] = &creature->brain[i];
+            creature->innerSinkCount[sinkId]++;
+        } else {
+            creature->brainsActionNeuronsSink[sinkId][creature->actionSinkCount[sinkId]] = &creature->brain[i];
+            creature->actionSinkCount[sinkId]++;
+        }
     }
 
     return creature;
@@ -82,7 +98,17 @@ void printInfoCreature(Creature* creature) {
     );
 }
 
+void printBrainCreature(Creature* creature) {
+    for (int i = 0; i < BRAIN_SIZE; i++) {
+        printf("%x\n", creature->brain[i]);
+    }
+}
+
 void calculateCreatureSensory(Creature* creature) {
     float result = sensorNeurons[2]->neuronCalculation(creature);
     printf("%f\n", result);
+}
+
+int calculateCreatureAction(Creature* creature) {
+    return 0;
 }

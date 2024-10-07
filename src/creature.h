@@ -10,6 +10,11 @@ typedef struct Creature {
     Genome brain[BRAIN_SIZE];
     int gridPosX;
     int gridPosY;
+    int innerSinkCount[INNER_NEURONS];
+    int actionSinkCount[ACTION_NEURONS];
+    Genome* brainsInnerNeuronsSink[INNER_NEURONS][BRAIN_SIZE];
+    Genome* brainsActionNeuronsSink[ACTION_NEURONS][BRAIN_SIZE];
+    
 } Creature;
 
 void initializeNeurons();
@@ -19,9 +24,10 @@ Creature* Creature_create(int creatureId, int gridPosX, int gridPosY);
 void Creature_destroy(Creature* creature);
 
 void printInfoCreature(Creature* creature);
+void printBrainCreature(Creature* creature);
 
 void calculateCreatureSensory(Creature* creature);
-
+int calculateCreatureAction(Creature* creature);
 
 
 #endif // CREATURE_H
