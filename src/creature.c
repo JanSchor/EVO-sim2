@@ -71,6 +71,8 @@ Creature* Creature_create(int creatureId, int gridPosX, int gridPosY) {
     }
     for (int i = 0; i < ACTION_NEURONS; i++) creature->actionSinkCount[i] = 0;
 
+    // Creating 2d arrays storing pointers to the genomes. Array contains are based on the sink type and id of neuron.
+    // Each array is created for inner and action neurons. Then each nester array contains all the genomes pointing to the specific id.
     for (int i = 0; i < BRAIN_SIZE; i++) {
         creature->brain[i] = *Genome_create();
         int sinkId = getSinkId((creature->brain[i]).connection);
@@ -116,44 +118,42 @@ int calculateCreatureAction(Creature* creature) {
     float innerSinkBuffer;
     float actionSinkBuffer;
     unsigned int connectionBuffer = 0;
-    unsigned int innerBuffers[INNER_NEURONS]; // Might be moved in future
-    unsigned int actionBuffers[ACTION_NEURONS]; // Might be moved in future
+    float innerBuffers[INNER_NEURONS];
+    // First the output value for every inner neuron is calculted. These values alre stored in the 'innerBuffers' array.
+    // The programm loops through the arrays defined above in 'Create_creature'. By this it cal calculate end value for each inner neuron specificly.
     for (int i = 0; i < INNER_NEURONS; i++) {
         for (int j = 0; j < creature->innerSinkCount[i]; j++) {
-            connectionBuffer = (*(creature->brainsInnerNeuronsSink[i][j])).connection;
-            if (!getSource(connectionBuffer)) {
-                //sensory
+            connectionBuffer = (*(creature->brainsInnerNeuronsSink[i][j])).connection; // In the 'connectionBuffer' is stored current genome connection the programm works with.
+            if (!getSource(connectionBuffer)) { // This if statement figures out the source (sensory or inner neuron)
                 innerSinkBuffer += sensorNeurons[getSourceId(connectionBuffer)]->neuronCalculation(creature) * getWeight(connectionBuffer);
             } else {
-                //inner
                 innerSinkBuffer += creature->innerBufferedValues[getSourceId(connectionBuffer)] * getWeight(connectionBuffer);
             }
+            // The computed addition to the 'innerSinkBuffer' above is made like this: we take the source output and multiply it by weight of the connection.
         }
-        innerBuffers[i] = tanh(connectionBuffer);
+        innerBuffers[i] = tanh(connectionBuffer); // This puts the value of each inner neuron between -1.0 and 1.0 (smaller differences)
         connectionBuffer = 0;
     }
     memcpy(creature->innerBufferedValues, innerBuffers, sizeof(innerBuffers));
+    int indexMaxValAction = -1; // -1 represents the 'no neuron fired' outcome
+    float maxValTrack = 0; // we eliminate every neurons that have value less than 0
+    float curValTrack = 0;
+    // Same loop as for inner neurons, but with action neurons.
     for (int i = 0; i < ACTION_NEURONS; i++) {
-        for (int j = 0; j < creature->actionSinkCount[i]; i++) {
+        for (int j = 0; j < creature->actionSinkCount[i]; j++) {
             connectionBuffer = (*(creature->brainsActionNeuronsSink[i][j])).connection;
-            if (!getSource(connectionBuffer)) {
-                //sensory
+            if (!getSource(connectionBuffer)) { // Computation works the same
                 innerSinkBuffer += sensorNeurons[getSourceId(connectionBuffer)]->neuronCalculation(creature) * getWeight(connectionBuffer);
             } else {
-                //inner
                 innerSinkBuffer += creature->innerBufferedValues[getSourceId(connectionBuffer)] * getWeight(connectionBuffer);
             }
         }
-        actionBuffers[i] = tanh(fmax(0, connectionBuffer)); // Might optimize to just keep track of max value
-        connectionBuffer = 0;
-    }
-    int indexMaxValAction = -1;
-    int maxVallTrack = 0;
-    for (int i = 0; i < ACTION_NEURONS; i++) {
-        if (actionBuffers[i] > maxVallTrack) {
-            maxVallTrack = actionBuffers[i];
+        curValTrack = tanh(0, connectionBuffer); // Again getting values from action neurons between -1.0 and 1.0
+        if (curValTrack > maxValTrack) {
+            maxValTrack = curValTrack;
             indexMaxValAction = i;
         }
+        connectionBuffer = 0;
     }
     return indexMaxValAction;
 }

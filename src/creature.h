@@ -14,7 +14,7 @@ typedef struct Creature {
     int actionSinkCount[ACTION_NEURONS];
     Genome* brainsInnerNeuronsSink[INNER_NEURONS][BRAIN_SIZE];
     Genome* brainsActionNeuronsSink[ACTION_NEURONS][BRAIN_SIZE];
-    unsigned int innerBufferedValues[INNER_NEURONS];
+    float innerBufferedValues[INNER_NEURONS];
     
 } Creature;
 
