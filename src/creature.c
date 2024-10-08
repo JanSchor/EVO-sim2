@@ -65,7 +65,10 @@ Creature* Creature_create(int creatureId, int gridPosX, int gridPosY) {
     creature->gridPosX = gridPosX;
     creature->gridPosY = gridPosY;
 
-    for (int i = 0; i < INNER_NEURONS; i++) creature->innerSinkCount[i] = 0;
+    for (int i = 0; i < INNER_NEURONS; i++) {
+        creature->innerSinkCount[i] = 0;
+        creature->innerBufferedValues[i] = 0.5;
+    }
     for (int i = 0; i < ACTION_NEURONS; i++) creature->actionSinkCount[i] = 0;
 
     for (int i = 0; i < BRAIN_SIZE; i++) {
@@ -110,5 +113,47 @@ void calculateCreatureSensory(Creature* creature) {
 }
 
 int calculateCreatureAction(Creature* creature) {
-    return 0;
+    float innerSinkBuffer;
+    float actionSinkBuffer;
+    unsigned int connectionBuffer = 0;
+    unsigned int innerBuffers[INNER_NEURONS]; // Might be moved in future
+    unsigned int actionBuffers[ACTION_NEURONS]; // Might be moved in future
+    for (int i = 0; i < INNER_NEURONS; i++) {
+        for (int j = 0; j < creature->innerSinkCount[i]; j++) {
+            connectionBuffer = (*(creature->brainsInnerNeuronsSink[i][j])).connection;
+            if (!getSource(connectionBuffer)) {
+                //sensory
+                innerSinkBuffer += sensorNeurons[getSourceId(connectionBuffer)]->neuronCalculation(creature) * getWeight(connectionBuffer);
+            } else {
+                //inner
+                innerSinkBuffer += creature->innerBufferedValues[getSourceId(connectionBuffer)] * getWeight(connectionBuffer);
+            }
+        }
+        innerBuffers[i] = tanh(connectionBuffer);
+        connectionBuffer = 0;
+    }
+    memcpy(creature->innerBufferedValues, innerBuffers, sizeof(innerBuffers));
+    for (int i = 0; i < ACTION_NEURONS; i++) {
+        for (int j = 0; j < creature->actionSinkCount[i]; i++) {
+            connectionBuffer = (*(creature->brainsActionNeuronsSink[i][j])).connection;
+            if (!getSource(connectionBuffer)) {
+                //sensory
+                innerSinkBuffer += sensorNeurons[getSourceId(connectionBuffer)]->neuronCalculation(creature) * getWeight(connectionBuffer);
+            } else {
+                //inner
+                innerSinkBuffer += creature->innerBufferedValues[getSourceId(connectionBuffer)] * getWeight(connectionBuffer);
+            }
+        }
+        actionBuffers[i] = tanh(fmax(0, connectionBuffer)); // Might optimize to just keep track of max value
+        connectionBuffer = 0;
+    }
+    int indexMaxValAction = -1;
+    int maxVallTrack = 0;
+    for (int i = 0; i < ACTION_NEURONS; i++) {
+        if (actionBuffers[i] > maxVallTrack) {
+            maxVallTrack = actionBuffers[i];
+            indexMaxValAction = i;
+        }
+    }
+    return indexMaxValAction;
 }

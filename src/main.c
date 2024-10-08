@@ -10,6 +10,7 @@
 #include "config.h"
 #include "globals.h"
 #include "errors.c"
+#include "genome.h"
 
 
 // Notes
@@ -42,8 +43,10 @@ int main() {
         genOfCreatures[i] = Creature_create(i, (*validGridCoords)[0], (*validGridCoords)[1]);
     }
 
+    
     printInfoCreature(genOfCreatures[0]);
     printBrainCreature(genOfCreatures[0]);
+    
     for (int i = 0; i < INNER_NEURONS; i++) {
         printf("%d\n", genOfCreatures[0]->innerSinkCount[i]);
     }
@@ -51,23 +54,8 @@ int main() {
     for (int i = 0; i < ACTION_NEURONS; i++) {
         printf("%d\n", genOfCreatures[0]->actionSinkCount[i]);
     }
-
-    float innerSinkBuffer;
-    unsigned int connectionBuffer;
-    for (int i = 0; i < INNER_NEURONS; i++) {
-        printf("%d:\n", i);
-        for (int j = 0; j < genOfCreatures[0]->innerSinkCount[i]; j++) {
-            connectionBuffer = (*(genOfCreatures[0]->brainsInnerNeuronsSink[i][j])).connection;
-            printf("%x\n", connectionBuffer);
-        }
-        printf("\n");
-    }
-
-
-
-
-
-
+    
+    printf("Action: %d\n", calculateCreatureAction(genOfCreatures[0]));
 
     // Destroying creatures
     for (int i = 0; i < CREATURES_IN_GEN; i++) {

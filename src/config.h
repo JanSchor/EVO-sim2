@@ -2,7 +2,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define BRAIN_SIZE 10
+#define BRAIN_SIZE 6
 #define CREATURES_IN_GEN 100
 #define GENERATION_STEPS 300
 
