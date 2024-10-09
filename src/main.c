@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <windows.h>
+#include <math.h>
 #include "creature.h"
 #include "neuron.h"
 #include "grid.h"
@@ -11,6 +12,7 @@
 #include "globals.h"
 #include "errors.c"
 #include "genome.h"
+
 
 
 // Notes
@@ -65,5 +67,7 @@ int main() {
     destroyNeurons();
     Grid_destroy(grid);
     
+
+    //printf("%f, %f\n", 0.0f, tanh(0.0f));
     return 0;
 }

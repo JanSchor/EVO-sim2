@@ -13,6 +13,6 @@ int getSource(unsigned int connection);
 int getSink(unsigned int connection);
 int getSourceId(unsigned int connection);
 int getSinkId(unsigned int connection);
-float getWeight(unsigned int connection);
+double getWeight(unsigned int connection);
 
 #endif // GENOME_H

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "creature.h"
 #include "config.h"
 #include "neuron.h"
@@ -114,11 +115,11 @@ void calculateCreatureSensory(Creature* creature) {
     printf("%f\n", result);
 }
 
-int calculateCreatureAction(Creature* creature) {
-    float innerSinkBuffer;
-    float actionSinkBuffer;
+int calculateCreatureAction(Creature* creature) { // Returns id of action neuron that fired, -1 if none
+    double innerSinkBuffer;
+    double actionSinkBuffer;
     unsigned int connectionBuffer = 0;
-    float innerBuffers[INNER_NEURONS];
+    double innerBuffers[INNER_NEURONS];
     // First the output value for every inner neuron is calculted. These values alre stored in the 'innerBuffers' array.
     // The programm loops through the arrays defined above in 'Create_creature'. By this it cal calculate end value for each inner neuron specificly.
     for (int i = 0; i < INNER_NEURONS; i++) {
@@ -129,31 +130,34 @@ int calculateCreatureAction(Creature* creature) {
             } else {
                 innerSinkBuffer += creature->innerBufferedValues[getSourceId(connectionBuffer)] * getWeight(connectionBuffer);
             }
-            // The computed addition to the 'innerSinkBuffer' above is made like this: we take the source output and multiply it by weight of the connection.
+            // The computed addition to the 'innerSinkBuffer' above is made from the source output multiplied by weight of the connection.
         }
-        innerBuffers[i] = tanh(connectionBuffer); // This puts the value of each inner neuron between -1.0 and 1.0 (smaller differences)
-        connectionBuffer = 0;
+        innerBuffers[i] = tanh(innerSinkBuffer); // This puts the value of each inner neuron between -1.0 and 1.0 (smaller differences)
+        innerSinkBuffer = 0;
     }
+    innerSinkBuffer = 0;
     memcpy(creature->innerBufferedValues, innerBuffers, sizeof(innerBuffers));
     int indexMaxValAction = -1; // -1 represents the 'no neuron fired' outcome
-    float maxValTrack = 0; // we eliminate every neurons that have value less than 0
-    float curValTrack = 0;
+    double maxValTrack = 0; // we eliminate every neurons that have value less than 0
+    double curValTrack = 0;
     // Same loop as for inner neurons, but with action neurons.
     for (int i = 0; i < ACTION_NEURONS; i++) {
         for (int j = 0; j < creature->actionSinkCount[i]; j++) {
             connectionBuffer = (*(creature->brainsActionNeuronsSink[i][j])).connection;
+            //printf("Source: %d\n", !getSource(connectionBuffer));
             if (!getSource(connectionBuffer)) { // Computation works the same
                 innerSinkBuffer += sensorNeurons[getSourceId(connectionBuffer)]->neuronCalculation(creature) * getWeight(connectionBuffer);
             } else {
                 innerSinkBuffer += creature->innerBufferedValues[getSourceId(connectionBuffer)] * getWeight(connectionBuffer);
             }
         }
-        curValTrack = tanh(0, connectionBuffer); // Again getting values from action neurons between -1.0 and 1.0
+        curValTrack = tanh(innerSinkBuffer); // Again getting values from action neurons between -1.0 and 1.0
+        printf("%d: %f\n", i, curValTrack);
         if (curValTrack > maxValTrack) {
             maxValTrack = curValTrack;
             indexMaxValAction = i;
         }
-        connectionBuffer = 0;
+        innerSinkBuffer = 0;
     }
     return indexMaxValAction;
 }

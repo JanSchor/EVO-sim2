@@ -36,7 +36,7 @@ float sensoryBorderDistanceY(struct Creature* creature) {
 
 
 // Inner neurons
-float innerUniversal(struct Creature* creature) {
+float innerUniversal(struct Creature* creature) { // not in use
     //return tanh(inputs);
     return 0.5f;
 }

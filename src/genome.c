@@ -57,6 +57,6 @@ int getSinkId(unsigned int connection) {
 }
 
 // Only difference here is that there is no shifting (it is already shifted), but subtracting 32767 (2^15) to get value between -32767 and 32768
-float getWeight(unsigned int connection) {
-    return ((connection & 0x0000ffff) - 32767) / 8191;
+double getWeight(unsigned int connection) {
+    return (double)((signed int)((connection & 0x0000ffff) - 32767)) / 8191;
 }
