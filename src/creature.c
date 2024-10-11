@@ -9,14 +9,18 @@
 #include "neuron_calculations.c"
 #include "globals.h"
 #include "genome.h"
+#include "grid.h"
 
 Neuron* sensorNeurons[NEURON_LIST_SIZE];
 Neuron* actionNeurons[NEURON_LIST_SIZE];
 Neuron* innerNeurons[NEURON_LIST_SIZE];
 int neuronsInitialized = 0;
+Grid* workingGrid = NULL;
 
-void initializeNeurons() {
+
+void initializeNeurons(Grid* grid) {
     if (neuronsInitialized) return;
+    workingGrid = grid;
 
     // When creating new neurons, update 'SENSORY_NEURONS', 'INNER_NEURONS', 'ACTION_NEURONS' in 'config.h' !!!
     // At least for now, hope to make it more automatic in future.
@@ -31,11 +35,11 @@ void initializeNeurons() {
 
 
     // Action neurons creation
-    actionNeurons[0] = Neuron_create(2, 0, "MoveRandom", "MvR", computeTest);
-    actionNeurons[1] = Neuron_create(2, 1, "MoveNorth", "MvN", computeTest);
-    actionNeurons[2] = Neuron_create(2, 2, "MoveSouth", "MvS", computeTest);
-    actionNeurons[3] = Neuron_create(2, 3, "MoveEast", "MvE", computeTest);
-    actionNeurons[4] = Neuron_create(2, 4, "MoveWest", "MvW", computeTest);
+    actionNeurons[0] = Neuron_create(2, 0, "MoveRandom", "MvR", actionMoveNorth);
+    actionNeurons[1] = Neuron_create(2, 1, "MoveNorth", "MvN", actionMoveNorth);
+    actionNeurons[2] = Neuron_create(2, 2, "MoveSouth", "MvS", actionMoveSouth);
+    actionNeurons[3] = Neuron_create(2, 3, "MoveEast", "MvE", actionMoveEast);
+    actionNeurons[4] = Neuron_create(2, 4, "MoveWest", "MvW", actionMoveWest);
 
     // Inner neurons creation
     char nameBuffer[32];
@@ -57,6 +61,14 @@ void destroyNeurons() {
     }
 }
 
+
+void creatureStep(struct Creature* creature) {
+    int idx = calculateCreatureAction(creature);
+    if (idx == -1) {
+        return;
+    }
+    actionNeurons[idx]->neuronCalculation(creature, workingGrid);
+}
 
 Creature* Creature_create(int creatureId, int gridPosX, int gridPosY) {
     Creature* creature = (Creature*)malloc(sizeof(Creature));
@@ -110,11 +122,6 @@ void printBrainCreature(Creature* creature) {
     }
 }
 
-void calculateCreatureSensory(Creature* creature) {
-    float result = sensorNeurons[2]->neuronCalculation(creature);
-    printf("%f\n", result);
-}
-
 int calculateCreatureAction(Creature* creature) { // Returns id of action neuron that fired, -1 if none
     double innerSinkBuffer;
     double actionSinkBuffer;
@@ -126,7 +133,7 @@ int calculateCreatureAction(Creature* creature) { // Returns id of action neuron
         for (int j = 0; j < creature->innerSinkCount[i]; j++) {
             connectionBuffer = (*(creature->brainsInnerNeuronsSink[i][j])).connection; // In the 'connectionBuffer' is stored current genome connection the programm works with.
             if (!getSource(connectionBuffer)) { // This if statement figures out the source (sensory or inner neuron)
-                innerSinkBuffer += sensorNeurons[getSourceId(connectionBuffer)]->neuronCalculation(creature) * getWeight(connectionBuffer);
+                innerSinkBuffer += sensorNeurons[getSourceId(connectionBuffer)]->neuronCalculation(creature, workingGrid) * getWeight(connectionBuffer);
             } else {
                 innerSinkBuffer += creature->innerBufferedValues[getSourceId(connectionBuffer)] * getWeight(connectionBuffer);
             }
@@ -146,13 +153,12 @@ int calculateCreatureAction(Creature* creature) { // Returns id of action neuron
             connectionBuffer = (*(creature->brainsActionNeuronsSink[i][j])).connection;
             //printf("Source: %d\n", !getSource(connectionBuffer));
             if (!getSource(connectionBuffer)) { // Computation works the same
-                innerSinkBuffer += sensorNeurons[getSourceId(connectionBuffer)]->neuronCalculation(creature) * getWeight(connectionBuffer);
+                innerSinkBuffer += sensorNeurons[getSourceId(connectionBuffer)]->neuronCalculation(creature, workingGrid) * getWeight(connectionBuffer);
             } else {
                 innerSinkBuffer += creature->innerBufferedValues[getSourceId(connectionBuffer)] * getWeight(connectionBuffer);
             }
         }
         curValTrack = tanh(innerSinkBuffer); // Again getting values from action neurons between -1.0 and 1.0
-        printf("%d: %f\n", i, curValTrack);
         if (curValTrack > maxValTrack) {
             maxValTrack = curValTrack;
             indexMaxValAction = i;

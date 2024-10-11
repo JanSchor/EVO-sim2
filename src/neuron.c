@@ -9,7 +9,7 @@ Neuron* Neuron_create(
     const int neuronId,
     const char* neuronName,
     const char* neuronShort,
-    float (*neuronCalculation)(struct Creature*)
+    float (*neuronCalculation)(struct Creature*, struct Grid*)
 ) {
     Neuron* neuron = (Neuron*)malloc(sizeof(Neuron));
     if (!neuron) return NULL;

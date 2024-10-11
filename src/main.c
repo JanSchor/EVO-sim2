@@ -32,8 +32,8 @@ int main() {
     srand(time(NULL));
 
     currentGenStep = 0;
-    initializeNeurons();
     Grid* grid = Grid_create();
+    initializeNeurons(grid);
 
 
     // Creating list of creatures
@@ -45,8 +45,15 @@ int main() {
         genOfCreatures[i] = Creature_create(i, (*validGridCoords)[0], (*validGridCoords)[1]);
     }
 
+
+    printGrid(grid);
+
+    creatureStep(genOfCreatures[0]); // Somewhere in this step is an error
+
+
     
     printInfoCreature(genOfCreatures[0]);
+    /*
     printBrainCreature(genOfCreatures[0]);
     
     for (int i = 0; i < INNER_NEURONS; i++) {
@@ -58,6 +65,17 @@ int main() {
     }
     
     printf("Action: %d\n", calculateCreatureAction(genOfCreatures[0]));
+    */
+
+   
+
+
+
+
+
+
+
+
 
     // Destroying creatures
     for (int i = 0; i < CREATURES_IN_GEN; i++) {
@@ -67,7 +85,5 @@ int main() {
     destroyNeurons();
     Grid_destroy(grid);
     
-
-    //printf("%f, %f\n", 0.0f, tanh(0.0f));
     return 0;
 }

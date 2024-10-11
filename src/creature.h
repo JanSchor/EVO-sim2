@@ -1,6 +1,7 @@
 
 #include "genome.h"
 #include "config.h"
+#include "grid.h"
 
 #ifndef CREATURE_H
 #define CREATURE_H
@@ -18,7 +19,7 @@ typedef struct Creature {
     
 } Creature;
 
-void initializeNeurons();
+void initializeNeurons(Grid* grid);
 void destroyNeurons();
 
 Creature* Creature_create(int creatureId, int gridPosX, int gridPosY);
@@ -27,8 +28,8 @@ void Creature_destroy(Creature* creature);
 void printInfoCreature(Creature* creature);
 void printBrainCreature(Creature* creature);
 
-void calculateCreatureSensory(Creature* creature);
 int calculateCreatureAction(Creature* creature);
+void creatureStep(struct Creature* creature);
 
 
 #endif // CREATURE_H
