@@ -44,35 +44,64 @@ float innerUniversal(struct Creature* creature, struct Grid* grid) { // not in u
 
 
 // Action neurons
-float actionMoveRandom(struct Creature* creature, struct Grid* grid) {
-    return 1.0;
-}
-
 float actionMoveNorth(struct Creature* creature, struct Grid* grid) {
     if (creature->gridPosY > 0 && grid->grid_array[creature->gridPosY-1][creature->gridPosX] == 0) {
-        printf("North\n");
-    } else printf("Nope N\n");
+        grid->grid_array[creature->gridPosY][creature->gridPosX] = 0;
+        grid->grid_array[creature->gridPosY-1][creature->gridPosX] = creature->creatureId + 10000;
+        creature->gridPosX;
+        creature->gridPosY--;
+    } else return 0;
     return 1.0;
 }
 
 float actionMoveSouth(struct Creature* creature, struct Grid* grid) {
     if (creature->gridPosY < GRID_Y-1 && grid->grid_array[creature->gridPosY+1][creature->gridPosX] == 0) {
-        printf("South\n");
-    } else printf("Nope S\n");
+        grid->grid_array[creature->gridPosY][creature->gridPosX] = 0;
+        grid->grid_array[creature->gridPosY+1][creature->gridPosX] = creature->creatureId + 10000;
+        creature->gridPosX;
+        creature->gridPosY++;
+    } else return 0;
     return 1.0;
 }
 
 float actionMoveEast(struct Creature* creature, struct Grid* grid) {
     if (creature->gridPosX < GRID_X-1 && grid->grid_array[creature->gridPosY][creature->gridPosX+1] == 0) {
-        printf("East\n");
-    } else printf("Nope E\n");
+        grid->grid_array[creature->gridPosY][creature->gridPosX] = 0;
+        grid->grid_array[creature->gridPosY][creature->gridPosX+1] = creature->creatureId + 10000;
+        creature->gridPosX++;
+        creature->gridPosY;
+    } else return 0;
     return 1.0;
 }
 
 float actionMoveWest(struct Creature* creature, struct Grid* grid) {
     if (creature->gridPosX > 0 && grid->grid_array[creature->gridPosY][creature->gridPosX-1] == 0) {
-        printf("West\n");
-    } else printf("Nope W\n");
+        grid->grid_array[creature->gridPosY][creature->gridPosX] = 0;
+        grid->grid_array[creature->gridPosY][creature->gridPosX-1] = creature->creatureId + 10000;
+        creature->gridPosX--;
+        creature->gridPosY;
+    } else return 0;
+    return 1.0;
+}
+
+float actionMoveRandom(struct Creature* creature, struct Grid* grid) {
+    switch (rand()%4)
+    {
+    case 0:
+        actionMoveNorth(creature, grid);
+        break;
+    case 1:
+        actionMoveSouth(creature, grid);
+        break;
+    case 2:
+        actionMoveEast(creature, grid);
+        break;
+    case 3:
+        actionMoveWest(creature, grid);
+        break;
+    default:
+        break;
+    }
     return 1.0;
 }
 

@@ -12,6 +12,7 @@
 #include "globals.h"
 #include "errors.c"
 #include "genome.h"
+//#include "neuron_calculations.c"
 
 
 
@@ -47,12 +48,19 @@ int main() {
 
 
     printGrid(grid);
+    for (int gen = 0; gen < GENERATION_STEPS; gen++) {
+        for (int c = 0; c < CREATURES_IN_GEN; c++) {
+            creatureStep(genOfCreatures[c]);
+        }
+    }
+    printf("\n");
+    //creatureStep(genOfCreatures[0]);
 
-    creatureStep(genOfCreatures[0]); // Somewhere in this step is an error
+    printGrid(grid);
 
 
     
-    printInfoCreature(genOfCreatures[0]);
+    //printInfoCreature(genOfCreatures[0]);
     /*
     printBrainCreature(genOfCreatures[0]);
     
