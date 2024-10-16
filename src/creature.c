@@ -70,7 +70,7 @@ void creatureStep(struct Creature* creature) {
     actionNeurons[idx]->neuronCalculation(creature, workingGrid);
 }
 
-Creature* Creature_create(int creatureId, int gridPosX, int gridPosY) {
+Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, Genome* passBrain) {
     Creature* creature = (Creature*)malloc(sizeof(Creature));
     if (!creature) return NULL;
 
@@ -86,15 +86,22 @@ Creature* Creature_create(int creatureId, int gridPosX, int gridPosY) {
 
     // Creating 2d arrays storing pointers to the genomes. Array contains are based on the sink type and id of neuron.
     // Each array is created for inner and action neurons. Then each nester array contains all the genomes pointing to the specific id.
-    for (int i = 0; i < BRAIN_SIZE; i++) {
-        creature->brain[i] = *Genome_create();
-        int sinkId = getSinkId((creature->brain[i]).connection);
-        if (getSink((creature->brain[i]).connection) == 0) {
-            creature->brainsInnerNeuronsSink[sinkId][creature->innerSinkCount[sinkId]] = &creature->brain[i];
-            creature->innerSinkCount[sinkId]++;
-        } else {
-            creature->brainsActionNeuronsSink[sinkId][creature->actionSinkCount[sinkId]] = &creature->brain[i];
-            creature->actionSinkCount[sinkId]++;
+    if (passBrain) {
+        for (int i = 0; i < BRAIN_SIZE; i++) {
+            creature->brain[i] = *Genome_create(passBrain[i].connection);
+        }
+        //memcpy(creature->brain, passBrain, sizeof(passBrain)); // Problem with copies
+    } else {
+        for (int i = 0; i < BRAIN_SIZE; i++) {
+            creature->brain[i] = *Genome_create(0);
+            int sinkId = getSinkId((creature->brain[i]).connection);
+            if (getSink((creature->brain[i]).connection) == 0) {
+                creature->brainsInnerNeuronsSink[sinkId][creature->innerSinkCount[sinkId]] = &creature->brain[i];
+                creature->innerSinkCount[sinkId]++;
+            } else {
+                creature->brainsActionNeuronsSink[sinkId][creature->actionSinkCount[sinkId]] = &creature->brain[i];
+                creature->actionSinkCount[sinkId]++;
+            }
         }
     }
 

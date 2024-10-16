@@ -85,7 +85,7 @@ float actionMoveWest(struct Creature* creature, struct Grid* grid) {
 }
 
 float actionMoveRandom(struct Creature* creature, struct Grid* grid) {
-    switch (rand()%4)
+    switch (rand()%4) // mod4 for 4 directions
     {
     case 0:
         actionMoveNorth(creature, grid);

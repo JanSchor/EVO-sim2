@@ -35,61 +35,66 @@ int main() {
     currentGenStep = 0;
     Grid* grid = Grid_create();
     initializeNeurons(grid);
+    Genome brain_alive[CREATURES_IN_GEN][BRAIN_SIZE];
+    unsigned int creaturesAlive;
+    int generationNum = 0;
 
 
     // Creating list of creatures
     int (*validGridCoords)[2];
     Creature* genOfCreatures[CREATURES_IN_GEN];
-    for (int i = 0; i < CREATURES_IN_GEN; i++) {
-        validGridCoords = findEmptySpaceGrid(grid);
-        setGrid(grid, (*validGridCoords)[0], (*validGridCoords)[1], 10000+i);
-        genOfCreatures[i] = Creature_create(i, (*validGridCoords)[0], (*validGridCoords)[1]);
-    }
 
 
-    printGrid(grid);
-    for (int gen = 0; gen < GENERATION_STEPS; gen++) {
-        for (int c = 0; c < CREATURES_IN_GEN; c++) {
-            creatureStep(genOfCreatures[c]);
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < CREATURES_IN_GEN; j++) {
+            validGridCoords = findEmptySpaceGrid(grid);
+            setGrid(grid, (*validGridCoords)[0], (*validGridCoords)[1], 10000+j);
+            if (generationNum == 0) {
+                genOfCreatures[j] = Creature_create(j, (*validGridCoords)[0], (*validGridCoords)[1], NULL); // might make it more optimal in future, dont like two same lines
+            } else {
+                genOfCreatures[j] = Creature_create(j, (*validGridCoords)[0], (*validGridCoords)[1], brain_alive[rand()%creaturesAlive]);
+            }
         }
+
+        printf("Gen %d:\n", i);
+        for (int j = 0; j < CREATURES_IN_GEN; j++) {
+            printBrainCreature(genOfCreatures[j]);
+            printf("\n");
+        }
+        for (currentGenStep = 0; currentGenStep < GENERATION_STEPS; currentGenStep++) {
+            for (int c = 0; c < CREATURES_IN_GEN; c++) {
+                creatureStep(genOfCreatures[c]);
+            }
+        }
+        creaturesAlive = 0;
+        for (int c = 0; c < CREATURES_IN_GEN; c++) {
+            if (genOfCreatures[c]->gridPosX >= ALIVE_START_X &&
+                genOfCreatures[c]->gridPosX <= ALIVE_END_X &&
+                genOfCreatures[c]->gridPosY >= ALIVE_START_Y &&
+                genOfCreatures[c]->gridPosY <= ALIVE_END_Y) {
+                    creaturesAlive++;
+                    memcpy(brain_alive[creaturesAlive-1], genOfCreatures[c]->brain, sizeof(genOfCreatures[c]->brain));
+            }
+        }/*
+        printf("Copied brains: \n");
+        for (int tt = 0; tt < creaturesAlive; tt++) {
+            for (int uu = 0; uu < BRAIN_SIZE; uu++) {
+                printf("%x\n", brain_alive[tt][uu]);
+            }
+            printf("\n");
+        }
+        */
+        printf("%d\n", creaturesAlive);
+        generationNum++;
+        // Destroying creatures
+        for (int c = 0; c < CREATURES_IN_GEN; c++) {
+            Creature_destroy(genOfCreatures[c]);
+        }
+        //printGrid(grid);
+        clearGrid(grid);
+
+        printf("\n");
     }
-    printf("\n");
-    //creatureStep(genOfCreatures[0]);
-
-    printGrid(grid);
-
-
-    
-    //printInfoCreature(genOfCreatures[0]);
-    /*
-    printBrainCreature(genOfCreatures[0]);
-    
-    for (int i = 0; i < INNER_NEURONS; i++) {
-        printf("%d\n", genOfCreatures[0]->innerSinkCount[i]);
-    }
-    printf("\n");
-    for (int i = 0; i < ACTION_NEURONS; i++) {
-        printf("%d\n", genOfCreatures[0]->actionSinkCount[i]);
-    }
-    
-    printf("Action: %d\n", calculateCreatureAction(genOfCreatures[0]));
-    */
-
-   
-
-
-
-
-
-
-
-
-
-    // Destroying creatures
-    for (int i = 0; i < CREATURES_IN_GEN; i++) {
-        Creature_destroy(genOfCreatures[i]);
-    }
-
     destroyNeurons();
     Grid_destroy(grid);
     

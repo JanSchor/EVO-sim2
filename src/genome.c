@@ -14,11 +14,15 @@ static unsigned int generateHex() {
     return x;
 }
 
-Genome* Genome_create() {
+Genome* Genome_create(unsigned int preMadeConnection) {
     Genome* genome = (Genome*)malloc(sizeof(Genome));
     if (!genome) return NULL;
 
-    genome->connection = generateHex();
+    if (preMadeConnection) {
+        genome->connection = preMadeConnection;
+    } else {
+        genome->connection = generateHex();
+    }
     return genome;
 }
 

@@ -6,7 +6,7 @@ typedef struct Genome {
     unsigned int connection;
 } Genome;
 
-Genome* Genome_create();
+Genome* Genome_create(unsigned int preMadeConnection);
 void Genome_destroy(Genome* genome);
 
 int getSource(unsigned int connection);
