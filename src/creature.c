@@ -63,7 +63,7 @@ void destroyNeurons() {
 
 
 void creatureStep(struct Creature* creature) {
-    int idx = calculateCreatureAction(creature);
+    int idx = calculateCreatureAction(creature); // here is problem
     if (idx == -1) {
         return;
     }
@@ -86,22 +86,17 @@ Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, Genome* pa
 
     // Creating 2d arrays storing pointers to the genomes. Array contains are based on the sink type and id of neuron.
     // Each array is created for inner and action neurons. Then each nester array contains all the genomes pointing to the specific id.
-    if (passBrain) {
-        for (int i = 0; i < BRAIN_SIZE; i++) {
-            creature->brain[i] = *Genome_create(passBrain[i].connection);
-        }
-        //memcpy(creature->brain, passBrain, sizeof(passBrain)); // Problem with copies
-    } else {
-        for (int i = 0; i < BRAIN_SIZE; i++) {
-            creature->brain[i] = *Genome_create(0);
-            int sinkId = getSinkId((creature->brain[i]).connection);
-            if (getSink((creature->brain[i]).connection) == 0) {
-                creature->brainsInnerNeuronsSink[sinkId][creature->innerSinkCount[sinkId]] = &creature->brain[i];
-                creature->innerSinkCount[sinkId]++;
-            } else {
-                creature->brainsActionNeuronsSink[sinkId][creature->actionSinkCount[sinkId]] = &creature->brain[i];
-                creature->actionSinkCount[sinkId]++;
-            }
+    for (int i = 0; i < BRAIN_SIZE; i++) {
+        if (passBrain) creature->brain[i] = *Genome_create(passBrain[i].connection);
+        else creature->brain[i] = *Genome_create(0);
+        //memcpy(creature->brain, passBrain, sizeof(passBrain)); // Problem with copies, might try it in future
+        int sinkId = getSinkId((creature->brain[i]).connection);
+        if (getSink((creature->brain[i]).connection) == 0) { // change it (==0)
+            creature->brainsInnerNeuronsSink[sinkId][creature->innerSinkCount[sinkId]] = &creature->brain[i];
+            creature->innerSinkCount[sinkId]++;
+        } else {
+            creature->brainsActionNeuronsSink[sinkId][creature->actionSinkCount[sinkId]] = &creature->brain[i];
+            creature->actionSinkCount[sinkId]++;
         }
     }
 
@@ -137,6 +132,7 @@ int calculateCreatureAction(Creature* creature) { // Returns id of action neuron
     // First the output value for every inner neuron is calculted. These values alre stored in the 'innerBuffers' array.
     // The programm loops through the arrays defined above in 'Create_creature'. By this it cal calculate end value for each inner neuron specificly.
     for (int i = 0; i < INNER_NEURONS; i++) {
+        //printf("%d\n", creature->innerSinkCount[i]);
         for (int j = 0; j < creature->innerSinkCount[i]; j++) {
             connectionBuffer = (*(creature->brainsInnerNeuronsSink[i][j])).connection; // In the 'connectionBuffer' is stored current genome connection the programm works with.
             if (!getSource(connectionBuffer)) { // This if statement figures out the source (sensory or inner neuron)
@@ -156,8 +152,9 @@ int calculateCreatureAction(Creature* creature) { // Returns id of action neuron
     double curValTrack = 0;
     // Same loop as for inner neurons, but with action neurons.
     for (int i = 0; i < ACTION_NEURONS; i++) {
-        for (int j = 0; j < creature->actionSinkCount[i]; j++) {
+        for (int j = 0; j < creature->actionSinkCount[i]; j++) { 
             connectionBuffer = (*(creature->brainsActionNeuronsSink[i][j])).connection;
+            //printf(" - %x\n", connectionBuffer);
             //printf("Source: %d\n", !getSource(connectionBuffer));
             if (!getSource(connectionBuffer)) { // Computation works the same
                 innerSinkBuffer += sensorNeurons[getSourceId(connectionBuffer)]->neuronCalculation(creature, workingGrid) * getWeight(connectionBuffer);

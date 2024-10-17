@@ -45,7 +45,7 @@ int main() {
     Creature* genOfCreatures[CREATURES_IN_GEN];
 
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 50; i++) { // The value of 'n' in (i < 'n') represents number of generations, it is raw now, implemented just for tests
         for (int j = 0; j < CREATURES_IN_GEN; j++) {
             validGridCoords = findEmptySpaceGrid(grid);
             setGrid(grid, (*validGridCoords)[0], (*validGridCoords)[1], 10000+j);
@@ -55,12 +55,7 @@ int main() {
                 genOfCreatures[j] = Creature_create(j, (*validGridCoords)[0], (*validGridCoords)[1], brain_alive[rand()%creaturesAlive]);
             }
         }
-
-        printf("Gen %d:\n", i);
-        for (int j = 0; j < CREATURES_IN_GEN; j++) {
-            printBrainCreature(genOfCreatures[j]);
-            printf("\n");
-        }
+        //printGrid(grid);
         for (currentGenStep = 0; currentGenStep < GENERATION_STEPS; currentGenStep++) {
             for (int c = 0; c < CREATURES_IN_GEN; c++) {
                 creatureStep(genOfCreatures[c]);
@@ -75,28 +70,26 @@ int main() {
                     creaturesAlive++;
                     memcpy(brain_alive[creaturesAlive-1], genOfCreatures[c]->brain, sizeof(genOfCreatures[c]->brain));
             }
-        }/*
-        printf("Copied brains: \n");
-        for (int tt = 0; tt < creaturesAlive; tt++) {
-            for (int uu = 0; uu < BRAIN_SIZE; uu++) {
-                printf("%x\n", brain_alive[tt][uu]);
-            }
-            printf("\n");
         }
-        */
-        printf("%d\n", creaturesAlive);
+        printf("Creatures alive: %d\n", creaturesAlive);
+        // --- Something to handle 0 creatures alive needs to be here in future ---
         generationNum++;
         // Destroying creatures
         for (int c = 0; c < CREATURES_IN_GEN; c++) {
             Creature_destroy(genOfCreatures[c]);
         }
-        //printGrid(grid);
-        clearGrid(grid);
-
+        printGrid(grid);
         printf("\n");
+        clearGrid(grid);
     }
     destroyNeurons();
     Grid_destroy(grid);
     
     return 0;
 }
+
+/*
+Creatures are now for some reason very random
+Definitelly check the brains of them to see what is happening there
+Fix it
+*/

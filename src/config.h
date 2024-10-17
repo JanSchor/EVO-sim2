@@ -3,7 +3,7 @@
 #define CONFIG_H
 
 #define BRAIN_SIZE 6
-#define CREATURES_IN_GEN 10
+#define CREATURES_IN_GEN 100
 #define GENERATION_STEPS 300
 
 // Grid specifications
@@ -19,8 +19,8 @@
 #define ALIVE_START_X 0
 #define ALIVE_START_Y 0
 
-#define ALIVE_END_X 10
-#define ALIVE_END_Y 30
+#define ALIVE_END_X 30
+#define ALIVE_END_Y 5
 
 
 #endif // CONFIG_H
