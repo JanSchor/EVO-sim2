@@ -70,7 +70,7 @@ void creatureStep(struct Creature* creature) { // move
     actionNeurons[idx]->neuronCalculation(creature, workingGrid);
 }
 
-Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, Genome* passBrain) {
+Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, unsigned int* passBrain) {
     Creature* creature = (Creature*)malloc(sizeof(Creature));
     if (!creature) return NULL;
 
@@ -88,8 +88,8 @@ Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, Genome* pa
     // Each array is created for inner and action neurons. Then each nester array contains all the genomes pointing to the specific id.
     unsigned int connection;
     for (int i = 0; i < BRAIN_SIZE; i++) {
-        if (passBrain) {
-            connection = passBrain[i].connection;
+        if (passBrain != 0) {
+            connection = passBrain[i];
             if (rand() % MUTATION_RATE == 0) {
                 // Creates mast of all 0 and 1 on random pos from 0 to 31 -> by applying xor, this results in one random bit negated (mutation)
                 connection ^= (unsigned int)pow(2.0, (double)(rand() % 32));

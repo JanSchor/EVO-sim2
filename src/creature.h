@@ -22,7 +22,7 @@ typedef struct Creature {
 void initializeNeurons(Grid* grid);
 void destroyNeurons();
 
-Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, Genome* passBrain); // here might be problem
+Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, unsigned int* passBrain);
 void Creature_destroy(Creature* creature);
 
 void printInfoCreature(Creature* creature);

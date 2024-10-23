@@ -45,6 +45,16 @@ void setGrid(Grid* grid, int x, int y, int val) {
     grid->grid_array[y][x] = val;
 }
 
+void buildWall(Grid* grid) {
+    int pivotY;
+    int pivotX;
+    for (pivotY = WALL_START_Y; pivotY < WALL_END_Y+1; pivotY++) {
+        for (pivotX = WALL_START_X; pivotX < WALL_END_X+1; pivotX++) {
+            setGrid(grid, pivotX, pivotY, 1);
+        }
+    }
+}
+
 int (*findEmptySpaceGrid(Grid* grid))[2] {
     static int coords[2];
     int randomX;
@@ -73,5 +83,6 @@ int (*findEmptySpaceGrid(Grid* grid))[2] {
 /*
 GRID legend:
     0 - empty space
+    1 - wall
     10000 to 19999 - creature with id from 0 to 9999 (starting with 1)
 */

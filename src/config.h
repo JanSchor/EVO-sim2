@@ -2,7 +2,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define BRAIN_SIZE 6
+#define BRAIN_SIZE 10
 #define CREATURES_IN_GEN 100
 #define GENERATION_STEPS 300
 
@@ -20,8 +20,15 @@
 #define ALIVE_START_X 0
 #define ALIVE_START_Y 0
 
-#define ALIVE_END_X 15
-#define ALIVE_END_Y 15
+#define ALIVE_END_X 4
+#define ALIVE_END_Y 30
+
+// Wall
+#define WALL_GEN 500
+#define WALL_START_X 7
+#define WALL_START_Y 7
+#define WALL_END_X 7
+#define WALL_END_Y 23
 
 
 #endif // CONFIG_H
