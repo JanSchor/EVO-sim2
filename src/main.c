@@ -46,7 +46,7 @@ int main() {
     Creature* genOfCreatures[CREATURES_IN_GEN];
 
     for (int i = 0; i < 5001; i++) { // The value of 'n' in (i < 'n') represents number of generations, it is raw now, implemented just for tests
-        if (i > WALL_GEN) buildWall(grid); // Building wall after set generation in config
+        if (i > WALL_GEN && WALL_GEN >= 0) buildWall(grid); // Building wall after set generation in config
         for (int j = 0; j < CREATURES_IN_GEN; j++) {
             validGridCoords = findEmptySpaceGrid(grid);
             setGrid(grid, (*validGridCoords)[0], (*validGridCoords)[1], 10000+j);

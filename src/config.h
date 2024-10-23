@@ -24,7 +24,7 @@
 #define ALIVE_END_Y 30
 
 // Wall
-#define WALL_GEN 500
+#define WALL_GEN -1 // -1 for no wall
 #define WALL_START_X 7
 #define WALL_START_Y 7
 #define WALL_END_X 7
