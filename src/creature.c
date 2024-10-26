@@ -62,12 +62,12 @@ void destroyNeurons() {
 }
 
 
-void creatureStep(struct Creature* creature) { // move
+int creatureStep(struct Creature* creature) { // move
     int idx = calculateCreatureAction(creature);
     if (idx == -1) {
-        return;
+        return 0;
     }
-    actionNeurons[idx]->neuronCalculation(creature, workingGrid);
+    return (int)actionNeurons[idx]->neuronCalculation(creature, workingGrid);
 }
 
 Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, unsigned int* passBrain) {

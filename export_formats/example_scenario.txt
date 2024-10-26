@@ -1,0 +1,5 @@
+ver:1;
+0{steps:300;alive:0,0,5,29;mutation_rate:40;creatures:100;export:g;}
+199{export:g;}
+200{wall:7,7,7,23;export:g;}
+1000{export:g;export:b;}

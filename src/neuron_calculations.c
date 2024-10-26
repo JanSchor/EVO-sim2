@@ -61,7 +61,7 @@ float actionMoveSouth(struct Creature* creature, struct Grid* grid) {
         creature->gridPosX;
         creature->gridPosY++;
     } else return 0;
-    return 1.0;
+    return 2.0;
 }
 
 float actionMoveEast(struct Creature* creature, struct Grid* grid) {
@@ -71,7 +71,7 @@ float actionMoveEast(struct Creature* creature, struct Grid* grid) {
         creature->gridPosX++;
         creature->gridPosY;
     } else return 0;
-    return 1.0;
+    return 3.0;
 }
 
 float actionMoveWest(struct Creature* creature, struct Grid* grid) {
@@ -81,28 +81,29 @@ float actionMoveWest(struct Creature* creature, struct Grid* grid) {
         creature->gridPosX--;
         creature->gridPosY;
     } else return 0;
-    return 1.0;
+    return 4.0;
 }
 
 float actionMoveRandom(struct Creature* creature, struct Grid* grid) {
+    float returnVal;
     switch (rand()%4) // mod4 for 4 directions
     {
     case 0:
-        actionMoveNorth(creature, grid);
+        returnVal = actionMoveNorth(creature, grid);
         break;
     case 1:
-        actionMoveSouth(creature, grid);
+        returnVal = actionMoveSouth(creature, grid);
         break;
     case 2:
-        actionMoveEast(creature, grid);
+        returnVal = actionMoveEast(creature, grid);
         break;
     case 3:
-        actionMoveWest(creature, grid);
+        returnVal = actionMoveWest(creature, grid);
         break;
     default:
         break;
     }
-    return 1.0;
+    return returnVal;
 }
 
 

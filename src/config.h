@@ -2,7 +2,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define BRAIN_SIZE 10
+#define BRAIN_SIZE 6
 #define CREATURES_IN_GEN 100
 #define GENERATION_STEPS 300
 
@@ -21,14 +21,17 @@
 #define ALIVE_START_Y 0
 
 #define ALIVE_END_X 4
-#define ALIVE_END_Y 30
+#define ALIVE_END_Y 29 // handle error for exceeding boundaries
 
 // Wall
-#define WALL_GEN -1 // -1 for no wall
+#define WALL_GEN 290 // -1 for no wall
 #define WALL_START_X 7
 #define WALL_START_Y 7
 #define WALL_END_X 7
 #define WALL_END_Y 23
+
+// File working
+#define GEN_EXPORT_VERSION 1
 
 
 #endif // CONFIG_H

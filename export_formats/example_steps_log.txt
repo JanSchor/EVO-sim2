@@ -1,0 +1,13 @@
+grid{30,30;}
+wall1{7,7,7,23;}
+s1{0,0,15,15;}
+s2{0,15,15,30;cld;}
+pos{0:5,4;1:7,9;2:1,1; ... 98:3,2;99:4,5;}
+0{0:mvs;1:mvn;2:not;3:mvs; ... 98:mvw;99:not;}
+1{0:mvn;1:mvn;2:mvn;3:mvn; ... 98:mvn;99:mvn;}
+2{0:mvn;1:mvn;2:mvn;3:mvn; ... 98:mvn;99:mvn;}
+3{0:mvn;1:mvn;2:mvn;3:mvn; ... 98:mvn;99:mvn;}
+.
+.
+.
+99{0:mvn;1:mvn;2:mvn;3:mvn; ... 98:mvn;99:mvn;}

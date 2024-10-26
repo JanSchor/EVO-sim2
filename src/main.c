@@ -12,13 +12,11 @@
 #include "globals.h"
 #include "errors.c"
 #include "genome.h"
-//#include "neuron_calculations.c"
+#include "help_lib.c"
 
 
 
 // Notes
-// Mutation 1:1000 per genome
-// https://youtu.be/N3tRFayqVtk?si=DoGmfUdZsobps68d
 // fire mechanic and night
 // premade file with scenario (gen 1000 wall)
 
@@ -26,12 +24,20 @@
 
 // Main function
 int main() {
+    // Setting clock to measure time the program took
     clock_t begin = clock();
+
     // Error hendeling
     if (checkForErrors()) return 1;
 
+    // Getting unix time to set random seed and define header of export file name
+    int unixTimestamp = time(NULL);
+    char fileNameH[16];
+    convertToTime(unixTimestamp, fileNameH, sizeof(fileNameH));
+    printf("File header: %s\n", fileNameH);
+
     // Random seed based on time
-    srand(time(NULL));
+    srand(unixTimestamp);
 
     currentGenStep = 0;
     Grid* grid = Grid_create();
@@ -44,8 +50,22 @@ int main() {
     // Creating list of creatures
     int (*validGridCoords)[2];
     Creature* genOfCreatures[CREATURES_IN_GEN];
+    char fileNameSteps[64];
+    char filePosSteps[CREATURES_IN_GEN*15];
 
-    for (int i = 0; i < 5001; i++) { // The value of 'n' in (i < 'n') represents number of generations, it is raw now, implemented just for tests
+    FILE* fileSteps;
+    int workWithFileSteps = 0;
+    int stepDone;
+    for (int i = 0; i < 10; i++) { // The value of 'n' in (i < 'n') represents number of generations, it is raw now, implemented just for tests
+        if (i == 5) { // File export on generation 5
+            sprintf(fileNameSteps, "./exports/%s_steps_log_%d.txt", fileNameH, i);
+            fileSteps = fopen(fileNameSteps, "w");
+            workWithFileSteps = 1;
+            printf("work ini %d\n", workWithFileSteps);
+            fileHeaderSteps(fileSteps, i);
+            strcpy(filePosSteps, "pos{");
+            
+        }
         if (i > WALL_GEN && WALL_GEN >= 0) buildWall(grid); // Building wall after set generation in config
         for (int j = 0; j < CREATURES_IN_GEN; j++) {
             validGridCoords = findEmptySpaceGrid(grid);
@@ -56,10 +76,16 @@ int main() {
                 genOfCreatures[j] = Creature_create(j, (*validGridCoords)[0], (*validGridCoords)[1], brain_alive[rand()%creaturesAlive]);
             }
         }
+        if (workWithFileSteps) {
+            filePosPartSteps(fileSteps, &genOfCreatures);
+        }
         for (currentGenStep = 0; currentGenStep < GENERATION_STEPS; currentGenStep++) {
+            if (workWithFileSteps) fprintf(fileSteps, "%d{", currentGenStep);
             for (int c = 0; c < CREATURES_IN_GEN; c++) {
-                creatureStep(genOfCreatures[c]);
+                stepDone = creatureStep(genOfCreatures[c]);
+                if (workWithFileSteps) fprintf(fileSteps, "%d:%s;", c, getStringAction(stepDone));
             }
+            if (workWithFileSteps) fprintf(fileSteps, "}\n");
         }
         creaturesAlive = 0;
         for (int c = 0; c < CREATURES_IN_GEN; c++) {
@@ -89,6 +115,12 @@ int main() {
             printf("\n");
         }
         clearGrid(grid);
+
+        if (workWithFileSteps) {
+            fclose(fileSteps);
+            workWithFileSteps = 0;
+        }
+
     }
     destroyNeurons();
     Grid_destroy(grid);

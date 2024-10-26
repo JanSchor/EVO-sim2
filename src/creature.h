@@ -16,7 +16,6 @@ typedef struct Creature {
     Genome* brainsInnerNeuronsSink[INNER_NEURONS][BRAIN_SIZE];
     Genome* brainsActionNeuronsSink[ACTION_NEURONS][BRAIN_SIZE];
     double innerBufferedValues[INNER_NEURONS];
-    
 } Creature;
 
 void initializeNeurons(Grid* grid);
@@ -29,7 +28,7 @@ void printInfoCreature(Creature* creature);
 void printBrainCreature(Creature* creature);
 
 int calculateCreatureAction(Creature* creature);
-void creatureStep(struct Creature* creature);
+int creatureStep(struct Creature* creature);
 
 
 #endif // CREATURE_H
