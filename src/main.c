@@ -77,15 +77,16 @@ int main() {
             }
         }
         if (workWithFileSteps) {
-            filePosPartSteps(fileSteps, &genOfCreatures);
+            filePosPartSteps(fileSteps, &genOfCreatures, 0);
         }
         for (currentGenStep = 0; currentGenStep < GENERATION_STEPS; currentGenStep++) {
-            if (workWithFileSteps) fprintf(fileSteps, "%d{", currentGenStep);
+            //if (workWithFileSteps) fprintf(fileSteps, "%d{", currentGenStep);
             for (int c = 0; c < CREATURES_IN_GEN; c++) {
                 stepDone = creatureStep(genOfCreatures[c]);
-                if (workWithFileSteps) fprintf(fileSteps, "%d:%s;", c, getStringAction(stepDone));
+                // if (workWithFileSteps) fprintf(fileSteps, "%d:%s;", c, getStringAction(stepDone));
             }
-            if (workWithFileSteps) fprintf(fileSteps, "}\n");
+            //if (workWithFileSteps) fprintf(fileSteps, "}\n");
+            if (workWithFileSteps) filePosPartSteps(fileSteps, &genOfCreatures, currentGenStep+1);
         }
         creaturesAlive = 0;
         for (int c = 0; c < CREATURES_IN_GEN; c++) {

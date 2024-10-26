@@ -31,7 +31,7 @@
 #define WALL_END_Y 23
 
 // File working
-#define GEN_EXPORT_VERSION 1
+#define GEN_EXPORT_VERSION "1.0"
 
 
 #endif // CONFIG_H
