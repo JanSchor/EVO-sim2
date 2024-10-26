@@ -56,9 +56,9 @@ int main() {
     FILE* fileSteps;
     int workWithFileSteps = 0;
     int stepDone;
-    for (int i = 0; i < 10; i++) { // The value of 'n' in (i < 'n') represents number of generations, it is raw now, implemented just for tests
-        if (i == 5) { // File export on generation 5
-            sprintf(fileNameSteps, "./exports/%s_steps_log_%d.txt", fileNameH, i);
+    for (int i = 0; i < 10001; i++) { // The value of 'n' in (i < 'n') represents number of generations, it is raw now, implemented just for tests
+        if (i == 0 || i == 285 || i == 291 || i == 5000 || i == 10000) { // File exports on generations
+            sprintf(fileNameSteps, "./exports/%s_sl_%d.txt", fileNameH, i);
             fileSteps = fopen(fileNameSteps, "w");
             workWithFileSteps = 1;
             printf("work ini %d\n", workWithFileSteps);
