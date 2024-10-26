@@ -13,9 +13,10 @@ void convertToTime(int unixTimestamp, char* buffer, size_t bufferSize) {
 }
 
 void fileHeaderSteps(FILE* file, int gen) {
+    fprintf(file, "head{ver:%d;}\n", GEN_EXPORT_VERSION);
     fprintf(file, "grid{%d,%d;}\n", GRID_X, GRID_Y);
     if (WALL_GEN != -1 && gen >= WALL_GEN) fprintf(file, "wall1{%d,%d,%d,%d;}", WALL_START_X, WALL_START_Y, WALL_END_X, WALL_END_Y);
-    fprintf(file, "s1{%d,%d,%d,%d;}\n", ALIVE_START_X, ALIVE_START_Y, ALIVE_END_X, ALIVE_END_Y);
+    fprintf(file, "safe{%d,%d,%d,%d;}\n", ALIVE_START_X, ALIVE_START_Y, ALIVE_END_X, ALIVE_END_Y);
 }
 
 void filePosPartSteps(FILE* file, Creature* (*listOfC)[CREATURES_IN_GEN]) {
