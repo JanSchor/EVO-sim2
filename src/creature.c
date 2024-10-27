@@ -44,7 +44,7 @@ void initializeNeurons(Grid* grid) {
     // Inner neurons creation
     char nameBuffer[32];
     char shortNameBuffer[4];
-    for (int i = 0; i < INNER_NEURONS; i++) {
+    for (int i = 0; i < innerNeurons_g; i++) {
         sprintf(nameBuffer, "Inner%02d", i); // %02d gets nums from 00 - 99 based on 'i' (cap for inner neurons is at 100, stored in 'MAX_INNER_NEURON_COUNT')
         sprintf(shortNameBuffer, "I%02d", i);
         innerNeurons[i] = Neuron_create(1, i, nameBuffer, shortNameBuffer, innerUniversal);
@@ -78,7 +78,7 @@ Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, unsigned i
     creature->gridPosX = gridPosX;
     creature->gridPosY = gridPosY;
 
-    for (int i = 0; i < INNER_NEURONS; i++) {
+    for (int i = 0; i < innerNeurons_g; i++) {
         creature->innerSinkCount[i] = 0;
         creature->innerBufferedValues[i] = 0.5;
     }
@@ -87,10 +87,10 @@ Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, unsigned i
     // Creating 2d arrays storing pointers to the genomes. Array contains are based on the sink type and id of neuron.
     // Each array is created for inner and action neurons. Then each nester array contains all the genomes pointing to the specific id.
     unsigned int connection;
-    for (int i = 0; i < BRAIN_SIZE; i++) {
+    for (int i = 0; i < brainSize_g; i++) {
         if (passBrain != 0) {
             connection = passBrain[i];
-            if (rand() % MUTATION_RATE == 0) {
+            if (rand() % mutationRate_g == 0) {
                 // Creates mast of all 0 and 1 on random pos from 0 to 31 -> by applying xor, this results in one random bit negated (mutation)
                 connection ^= (unsigned int)pow(2.0, (double)(rand() % 32));
             }
@@ -127,7 +127,7 @@ void printInfoCreature(Creature* creature) {
 }
 
 void printBrainCreature(Creature* creature) {
-    for (int i = 0; i < BRAIN_SIZE; i++) {
+    for (int i = 0; i < brainSize_g; i++) {
         printf("%x\n", creature->brain[i]);
     }
 }
@@ -139,7 +139,7 @@ int calculateCreatureAction(Creature* creature) { // Returns id of action neuron
     double innerBuffers[INNER_NEURONS];
     // First the output value for every inner neuron is calculted. These values alre stored in the 'innerBuffers' array.
     // The programm loops through the arrays defined above in 'Create_creature'. By this it cal calculate end value for each inner neuron specificly.
-    for (int i = 0; i < INNER_NEURONS; i++) {
+    for (int i = 0; i < innerNeurons_g; i++) {
         for (int j = 0; j < creature->innerSinkCount[i]; j++) {
             connectionBuffer = (*(creature->brainsInnerNeuronsSink[i][j])).connection; // In the 'connectionBuffer' is stored current genome connection the programm works with.
             if (!getSource(connectionBuffer)) { // This if statement figures out the source (sensory or inner neuron)

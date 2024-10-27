@@ -4,6 +4,7 @@
 #include <string.h>
 #include "genome.h"
 #include "config.h"
+#include "globals.h"
 
 static unsigned int generateHex() {
     unsigned int
@@ -50,12 +51,12 @@ int getSink(unsigned int connection) {
 
 int getSourceId(unsigned int connection) {
     int divider = SENSORY_NEURONS;
-    if (getSource(connection)) divider = INNER_NEURONS;
+    if (getSource(connection)) divider = innerNeurons_g;
     return ((connection & 0x7f000000) >> 24) % divider;
 }
 
 int getSinkId(unsigned int connection) {
-    int divider = INNER_NEURONS;
+    int divider = innerNeurons_g;
     if (getSink(connection)) divider = ACTION_NEURONS;
     return ((connection & 0x7F0000) >> 16) % divider;
 }

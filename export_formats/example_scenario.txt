@@ -1,5 +1,5 @@
-ver:1;
-0{steps:300;alive:0,0,5,29;mutation_rate:40;creatures:100;export:g;}
-199{export:g;}
-200{wall:7,7,7,23;export:g;}
-1000{export:g;export:b;}
+head{ver:1.0;status:5000;grid:100,100;bs:6;inn:3}
+0{steps:300;alive:0,0,5,29;mutation_rate:40;creatures:100;export:s;}
+199{export:s;}
+200{wall:7,7,7,23;export:s;}
+1000{export:s;export:b;}

@@ -55,7 +55,7 @@ class GenerationData:
                     self.setGrid(lineVal)
                 case "safe":
                     self.setSafe(lineVal)
-                case "wall1":
+                case "wall":
                     self.setWall(lineVal)
                 case "foot":
                     self.setFoot(lineVal)
@@ -186,7 +186,7 @@ def drawCreatures(step: int) -> None:
     """Draws all the creatures for specific step"""
     for c in ld.records[step].keys():
         cPos = ld.records[step][c]
-        dpg.draw_circle((cPos[0]*ld.sqSize+10+(ld.sqSize//2), cPos[1]*ld.sqSize+10+(ld.sqSize//2)), ld.sqSize//2, fill=(255, 0, 0, 50))
+        dpg.draw_circle((cPos[0]*ld.sqSize+10+(ld.sqSize//2), cPos[1]*ld.sqSize+10+(ld.sqSize//2)), ld.sqSize//2, color=(255, 0, 0), fill=(255, 0, 0, 150))
 
 def selectFile() -> None:
     """Function that opens file explorer"""

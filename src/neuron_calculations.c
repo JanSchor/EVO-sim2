@@ -12,25 +12,25 @@ float sensoryRandom(struct Creature* creature, struct Grid* grid) {
 }
 
 float sensoryAge(struct Creature* creature, struct Grid* grid) {
-    return (float)currentGenStep / GENERATION_STEPS;
+    return (float)currentGenStep / generationSteps_g;
 }
 
 float sensoryPositionX(struct Creature* creature, struct Grid* grid) {
-    return (float)creature->gridPosX / GRID_X;
+    return (float)creature->gridPosX / gridX_g;
 }
 
 float sensoryPositionY(struct Creature* creature, struct Grid* grid) {
-    return (float)creature->gridPosY / GRID_Y;
+    return (float)creature->gridPosY / gridY_g;
 }
 
 float sensoryBorderDistanceX(struct Creature* creature, struct Grid* grid) {
-    float distance = (float)creature->gridPosX / GRID_X;
+    float distance = (float)creature->gridPosX / gridX_g;
     if (distance > 0.5) distance = 1.0-distance;
     return distance*2.0;
 }
 
 float sensoryBorderDistanceY(struct Creature* creature, struct Grid* grid) {
-    float distance = (float)creature->gridPosY / GRID_Y;
+    float distance = (float)creature->gridPosY / gridX_g;
     if (distance > 0.5) distance = 1.0-distance;
     return distance*2.0;
 }
@@ -55,7 +55,7 @@ float actionMoveNorth(struct Creature* creature, struct Grid* grid) {
 }
 
 float actionMoveSouth(struct Creature* creature, struct Grid* grid) {
-    if (creature->gridPosY < GRID_Y-1 && grid->grid_array[creature->gridPosY+1][creature->gridPosX] == 0) {
+    if (creature->gridPosY < gridY_g-1 && grid->grid_array[creature->gridPosY+1][creature->gridPosX] == 0) {
         grid->grid_array[creature->gridPosY][creature->gridPosX] = 0;
         grid->grid_array[creature->gridPosY+1][creature->gridPosX] = creature->creatureId + 10000;
         creature->gridPosX;
@@ -65,7 +65,7 @@ float actionMoveSouth(struct Creature* creature, struct Grid* grid) {
 }
 
 float actionMoveEast(struct Creature* creature, struct Grid* grid) {
-    if (creature->gridPosX < GRID_X-1 && grid->grid_array[creature->gridPosY][creature->gridPosX+1] == 0) {
+    if (creature->gridPosX < gridX_g-1 && grid->grid_array[creature->gridPosY][creature->gridPosX+1] == 0) {
         grid->grid_array[creature->gridPosY][creature->gridPosX] = 0;
         grid->grid_array[creature->gridPosY][creature->gridPosX+1] = creature->creatureId + 10000;
         creature->gridPosX++;

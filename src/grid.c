@@ -4,6 +4,8 @@
 #include <string.h>
 #include "grid.h"
 #include "config.h"
+#include "globals.h"
+#include "wall.h"
 
 
 Grid* Grid_create() {
@@ -23,8 +25,8 @@ void Grid_destroy(Grid* grid) {
 
 void printGrid(Grid* grid) {
     char sign[6];
-    for (int i = 0; i < GRID_Y; i++) {
-        for (int j = 0; j < GRID_X; j++) {
+    for (int i = 0; i < gridY_g; i++) {
+        for (int j = 0; j < gridX_g; j++) {
             sprintf(sign, "%05d", grid->grid_array[i][j]);
             printf("%s ", sign);
         }
@@ -34,8 +36,8 @@ void printGrid(Grid* grid) {
 
 void clearGrid(Grid* grid) {
     // fill the array with all 0
-    for (int i = 0; i < GRID_Y; i++) {
-        for (int j = 0; j < GRID_X; j++) {
+    for (int i = 0; i < gridY_g; i++) {
+        for (int j = 0; j < gridX_g; j++) {
             grid->grid_array[i][j] = 0;
         }
     }
@@ -48,9 +50,13 @@ void setGrid(Grid* grid, int x, int y, int val) {
 void buildWall(Grid* grid) {
     int pivotY;
     int pivotX;
-    for (pivotY = WALL_START_Y; pivotY < WALL_END_Y+1; pivotY++) {
-        for (pivotX = WALL_START_X; pivotX < WALL_END_X+1; pivotX++) {
-            setGrid(grid, pivotX, pivotY, 1);
+    Wall wWall;
+    for (int wallI = 0; wallI < wallCount_g; wallI++) {
+        wWall = wall_g[wallI];
+        for (pivotY = wWall.startY; pivotY < wWall.endY+1; pivotY++) {
+            for (pivotX = wWall.startX; pivotX < wWall.endX+1; pivotX++) {
+                setGrid(grid, pivotX, pivotY, 1);
+            }
         }
     }
 }
@@ -60,16 +66,16 @@ int (*findEmptySpaceGrid(Grid* grid))[2] {
     int randomX;
     int randomY;
     for (int i = 0; i < 10; i++) {
-        randomX = rand()%GRID_X;
-        randomY = rand()%GRID_Y;
+        randomX = rand()%gridX_g;
+        randomY = rand()%gridY_g;
         if (grid->grid_array[randomY][randomX] == 0) break;
     }
     while (grid->grid_array[randomY][randomX] != 0) {
         randomX++;
-        if (randomX == GRID_X) {
+        if (randomX == gridX_g) {
             randomX = 0;
             randomY++;
-            if (randomY == GRID_Y) {
+            if (randomY == gridY_g) {
                 randomY = 0;
             }
         }
