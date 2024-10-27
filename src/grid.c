@@ -12,15 +12,36 @@ Grid* Grid_create() {
     Grid* grid = (Grid*)malloc(sizeof(Grid));
     if (!grid) return NULL;
 
-    clearGrid(grid);
+    grid->grid_array = (int**)malloc(gridY_g * sizeof(int*));
+    if (grid->grid_array == NULL) {
+        perror("Failed to allocate memory for grid_array");
+        free(grid);
+        return NULL;
+    }
 
+    for (int i = 0; i < gridY_g; i++) {
+        grid->grid_array[i] = (int*)malloc(gridX_g * sizeof(int));
+        if (grid->grid_array[i] == NULL) {
+            perror("Failed to allocate memory for grid_array[i]");
+            // Free previously allocated memory
+            for (int j = 0; j < i; j++) {
+                free(grid->grid_array[j]);
+            }
+            free(grid->grid_array);
+            free(grid);
+            return NULL;
+        }
+    }
+    //clearGrid(grid);
     return grid;
 }
 
 void Grid_destroy(Grid* grid) {
-    if (grid) {
-        free(grid);
+    for (int i = 0; i < gridY_g; i++) {
+        free(grid->grid_array[i]);
     }
+    free(grid->grid_array);
+    free(grid);
 }
 
 void printGrid(Grid* grid) {
@@ -44,7 +65,9 @@ void clearGrid(Grid* grid) {
 }
 
 void setGrid(Grid* grid, int x, int y, int val) {
-    grid->grid_array[y][x] = val;
+    if (x >= 0 && x < gridX_g && y >= 0 && y < gridY_g) {
+        grid->grid_array[y][x] = val;
+    }
 }
 
 void buildWall(Grid* grid) {

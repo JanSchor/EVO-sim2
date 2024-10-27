@@ -70,9 +70,97 @@ int creatureStep(struct Creature* creature) { // move
     return (int)actionNeurons[idx]->neuronCalculation(creature, workingGrid);
 }
 
+void freeCreatureMemory(Creature* creature) {
+    if (creature->brainsInnerNeuronsSink != NULL) {
+        for (int i = 0; i < innerNeurons_g; i++) {
+            if (creature->brainsInnerNeuronsSink[i] != NULL) {
+                free(creature->brainsInnerNeuronsSink[i]);
+            }
+        }
+        free(creature->brainsInnerNeuronsSink);
+    }
+    if (creature->brainsActionNeuronsSink != NULL) {
+        for (int i = 0; i < actionNeurons_g; i++) {
+            if (creature->brainsActionNeuronsSink[i] != NULL) {
+                free(creature->brainsActionNeuronsSink[i]);
+            }
+        }
+        free(creature->brainsActionNeuronsSink);
+    }
+    free(creature->innerBufferedValues);
+    free(creature->actionSinkCount);
+    free(creature->innerSinkCount);
+    free(creature->brain);
+    free(creature);
+}
+
 Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, unsigned int* passBrain) {
     Creature* creature = (Creature*)malloc(sizeof(Creature));
-    if (!creature) return NULL;
+    if (!creature) {
+        perror("Failed to allocate memory for Creature");
+        return NULL;
+    }
+
+    creature->brain = (Genome*)malloc(brainSize_g * sizeof(Genome));
+    if (creature->brain == NULL) {
+        perror("Failed to allocate memory for brain");
+        free(creature);
+        return NULL;
+    }
+
+    creature->innerSinkCount = (int*)malloc(innerNeurons_g * sizeof(int));
+    if (creature->innerSinkCount == NULL) {
+        perror("Failed to allocate memory for innerSinkCount");
+        freeCreatureMemory(creature);
+        return NULL;
+    }
+
+    creature->actionSinkCount = (int*)malloc(actionNeurons_g * sizeof(int));
+    if (creature->actionSinkCount == NULL) {
+        perror("Failed to allocate memory for actionSinkCount");
+        freeCreatureMemory(creature);
+        return NULL;
+    }
+
+    creature->innerBufferedValues = (double*)malloc(innerNeurons_g * sizeof(double));
+    if (creature->innerBufferedValues == NULL) {
+        perror("Failed to allocate memory for innerBufferedValues");
+        freeCreatureMemory(creature);
+        return NULL;
+    }
+
+    creature->brainsInnerNeuronsSink = (Genome***)malloc(innerNeurons_g * sizeof(Genome**));
+    if (creature->brainsInnerNeuronsSink == NULL) {
+        perror("Failed to allocate memory for brainsInnerNeuronsSink");
+        freeCreatureMemory(creature);
+        return NULL;
+    }
+
+    for (int i = 0; i < innerNeurons_g; i++) {
+        creature->brainsInnerNeuronsSink[i] = (Genome**)malloc(brainSize_g * sizeof(Genome*));
+        if (creature->brainsInnerNeuronsSink[i] == NULL) {
+            perror("Failed to allocate memory for brainsInnerNeuronsSink[i]");
+            freeCreatureMemory(creature);
+            return NULL;
+        }
+    }
+
+    creature->brainsActionNeuronsSink = (Genome***)malloc(actionNeurons_g * sizeof(Genome**));
+    if (creature->brainsActionNeuronsSink == NULL) {
+        perror("Failed to allocate memory for brainsActionNeuronsSink");
+        freeCreatureMemory(creature);
+        return NULL;
+    }
+
+    for (int i = 0; i < actionNeurons_g; i++) {
+        creature->brainsActionNeuronsSink[i] = (Genome**)malloc(brainSize_g * sizeof(Genome*));
+        if (creature->brainsActionNeuronsSink[i] == NULL) {
+            perror("Failed to allocate memory for brainsActionNeuronsSink[i]");
+            freeCreatureMemory(creature);
+            return NULL;
+        }
+    }
+
 
     creature->creatureId = creatureId;
     creature->gridPosX = gridPosX;
@@ -82,7 +170,7 @@ Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, unsigned i
         creature->innerSinkCount[i] = 0;
         creature->innerBufferedValues[i] = 0.5;
     }
-    for (int i = 0; i < ACTION_NEURONS; i++) creature->actionSinkCount[i] = 0;
+    for (int i = 0; i < actionNeurons_g; i++) creature->actionSinkCount[i] = 0;
 
     // Creating 2d arrays storing pointers to the genomes. Array contains are based on the sink type and id of neuron.
     // Each array is created for inner and action neurons. Then each nester array contains all the genomes pointing to the specific id.
@@ -112,7 +200,21 @@ Creature* Creature_create(int creatureId, int gridPosX, int gridPosY, unsigned i
 }
 
 void Creature_destroy(Creature* creature) {
-    if (creature) {
+    if (creature != NULL) {
+        for (int i = 0; i < innerNeurons_g; i++) {
+            free(creature->brainsInnerNeuronsSink[i]);
+        }
+        free(creature->brainsInnerNeuronsSink);
+
+        for (int i = 0; i < actionNeurons_g; i++) {
+            free(creature->brainsActionNeuronsSink[i]);
+        }
+        free(creature->brainsActionNeuronsSink);
+
+        free(creature->innerBufferedValues);
+        free(creature->actionSinkCount);
+        free(creature->innerSinkCount);
+        free(creature->brain);
         free(creature);
     }
 }
@@ -136,7 +238,7 @@ int calculateCreatureAction(Creature* creature) { // Returns id of action neuron
     double innerSinkBuffer;
     double actionSinkBuffer;
     unsigned int connectionBuffer = 0;
-    double innerBuffers[INNER_NEURONS];
+    double *innerBuffers = (double *)malloc(innerNeurons_g * sizeof(double));
     // First the output value for every inner neuron is calculted. These values alre stored in the 'innerBuffers' array.
     // The programm loops through the arrays defined above in 'Create_creature'. By this it cal calculate end value for each inner neuron specificly.
     for (int i = 0; i < innerNeurons_g; i++) {
@@ -158,7 +260,7 @@ int calculateCreatureAction(Creature* creature) { // Returns id of action neuron
     double maxValTrack = 0; // we eliminate every neurons that have value less than 0
     double curValTrack = 0;
     // Same loop as for inner neurons, but with action neurons.
-    for (int i = 0; i < ACTION_NEURONS; i++) {
+    for (int i = 0; i < actionNeurons_g; i++) {
         for (int j = 0; j < creature->actionSinkCount[i]; j++) { 
             connectionBuffer = (*(creature->brainsActionNeuronsSink[i][j])).connection;
             if (!getSource(connectionBuffer)) { // Computation works the same

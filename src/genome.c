@@ -50,14 +50,14 @@ int getSink(unsigned int connection) {
 }
 
 int getSourceId(unsigned int connection) {
-    int divider = SENSORY_NEURONS;
+    int divider = sensoryNeurons_g;
     if (getSource(connection)) divider = innerNeurons_g;
     return ((connection & 0x7f000000) >> 24) % divider;
 }
 
 int getSinkId(unsigned int connection) {
     int divider = innerNeurons_g;
-    if (getSink(connection)) divider = ACTION_NEURONS;
+    if (getSink(connection)) divider = actionNeurons_g;
     return ((connection & 0x7F0000) >> 16) % divider;
 }
 

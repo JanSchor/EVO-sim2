@@ -5,7 +5,7 @@
 #define GRID_H
 
 typedef struct Grid {
-    int grid_array[GRID_Y][GRID_X];
+    int** grid_array;
 } Grid;
 
 Grid* Grid_create();

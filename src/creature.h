@@ -8,14 +8,14 @@
 
 typedef struct Creature {
     int creatureId;
-    Genome brain[BRAIN_SIZE];
+    Genome* brain;
     int gridPosX;
     int gridPosY;
-    int innerSinkCount[INNER_NEURONS];
-    int actionSinkCount[ACTION_NEURONS];
-    Genome* brainsInnerNeuronsSink[INNER_NEURONS][BRAIN_SIZE];
-    Genome* brainsActionNeuronsSink[ACTION_NEURONS][BRAIN_SIZE];
-    double innerBufferedValues[INNER_NEURONS];
+    int* innerSinkCount;
+    int* actionSinkCount;
+    Genome*** brainsInnerNeuronsSink;
+    Genome*** brainsActionNeuronsSink;
+    double* innerBufferedValues;
 } Creature;
 
 void initializeNeurons(Grid* grid);

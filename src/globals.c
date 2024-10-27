@@ -26,24 +26,16 @@ int wallCount_g = 0;
 Wall wall_g[MAX_WALLS];
 
 // Neurons
+int sensoryNeurons_g = SENSORY_NEURONS;
 int innerNeurons_g = INNER_NEURONS;
+int actionNeurons_g = ACTION_NEURONS;
 
 // Status
 int status_g = GIVE_STATUS;
 
 /*
 Problems with globals to fix:
-creature.c
-    139
-creature.h
-    entire struct
-grid.h
-    struct
-help_lib.c
-    filePosPartSteps
-        entire function
-    fileCrePartBrains
-        entire function
-main.c
-    70
+
+Check for memory leaks
+Edit config or default
 */

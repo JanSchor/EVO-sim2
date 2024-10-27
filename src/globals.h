@@ -29,7 +29,9 @@ extern int wallCount_g;
 extern Wall wall_g[MAX_WALLS];
 
 // Neurons
+extern int sensoryNeurons_g;
 extern int innerNeurons_g;
+extern int actionNeurons_g;
 
 // Status
 extern int status_g;

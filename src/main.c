@@ -41,22 +41,8 @@ int main() {
     currentGenStep = 0;
     Grid* grid = Grid_create();
     initializeNeurons(grid);
-    //unsigned int brain_alive[CREATURES_IN_GEN][BRAIN_SIZE];
     unsigned int* brain_alive_block = (unsigned int*)malloc(creaturesInGen_g * brainSize_g * sizeof(unsigned int));
-    /* error handle
-    if (brain_alive_block == NULL) {
-        perror("Failed to allocate memory for brain_alive_block");
-        return 1;
-    }
-    */
     unsigned int** brain_alive = (unsigned int**)malloc(creaturesInGen_g * sizeof(unsigned int*));
-    /* error handle
-    if (brain_alive == NULL) {
-        perror("Failed to allocate memory for brain_alive");
-        free(brain_alive_block);
-        return 1;
-    }
-    */
     for (int i = 0; i < creaturesInGen_g; i++) {
         brain_alive[i] = brain_alive_block + i * brainSize_g;
     }
@@ -67,14 +53,7 @@ int main() {
 
     // Creating list of creatures
     int (*validGridCoords)[2];
-    Creature* genOfCreatures[CREATURES_IN_GEN];
-    //Creature** genOfCreatures = (Creature**)malloc(creaturesInGen_g * sizeof(Creature*));
-    /* error handle
-    if (genOfCreatures == NULL) {
-        perror("Failed to allocate memory for genOfCreatures");
-        return 1;
-    }
-    */
+    Creature** genOfCreatures = (Creature**)malloc(creaturesInGen_g * sizeof(Creature*));
 
     FILE* fileSteps;
     int workWithFileSteps = 0;
@@ -113,15 +92,13 @@ int main() {
                 genOfCreatures[j] = Creature_create(j, (*validGridCoords)[0], (*validGridCoords)[1], brain_alive[rand()%creaturesAlive]);
             }
         }
-        if (workWithFileSteps) filePosPartSteps(fileSteps, &genOfCreatures, 0); // Writing starting positions to gen log
-        //if (workWithFileSteps) filePosPartSteps(fileSteps, (Creature* (*)[CREATURES_IN_GEN])genOfCreatures, 0);
-        if (workWithFileBrains) fileCrePartBrains(fileBrains, &genOfCreatures); // Writing brains to brain log
-        //if (workWithFileBrains) fileCrePartBrains(fileBrains, (Creature* (*)[CREATURES_IN_GEN])genOfCreatures);
+        if (workWithFileSteps) filePosPartSteps(fileSteps, genOfCreatures, creaturesInGen_g, 0); // Writing starting positions to gen log
+        if (workWithFileBrains) fileCrePartBrains(fileBrains, genOfCreatures, creaturesInGen_g); // Writing brains to brain log
         for (currentGenStep = 0; currentGenStep < generationSteps_g; currentGenStep++) { // Looping through each step of generation
             for (int c = 0; c < creaturesInGen_g; c++) stepDone = creatureStep(genOfCreatures[c]); // Executing step for every creature
-            if (workWithFileSteps) filePosPartSteps(fileSteps, &genOfCreatures, currentGenStep+1); // Writing positions after each step to gen log
-            //if (workWithFileSteps) filePosPartSteps(fileSteps, (Creature* (*)[CREATURES_IN_GEN])genOfCreatures, currentGenStep+1);
+            if (workWithFileSteps) filePosPartSteps(fileSteps, genOfCreatures, creaturesInGen_g, currentGenStep + 1); // Writing positions after each step to gen log
         }
+        
         creaturesAlive = 0;
         for (int c = 0; c < creaturesInGen_g; c++) {
             if (isCreatureSafe(genOfCreatures[c])) {
@@ -155,6 +132,7 @@ int main() {
     }
 
     // Program end
+    free(genOfCreatures);
     destroyNeurons();
     Grid_destroy(grid);
     clock_t end = clock();

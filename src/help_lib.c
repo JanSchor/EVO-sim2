@@ -18,7 +18,7 @@ void convertToTime(int unixTimestamp, char* buffer, size_t bufferSize) {
 
 void fileHeaderSteps(FILE* file, int gen) {
     fprintf(file, "head{ver:%s;gen:%d;}\n", GEN_EXPORT_VERSION, gen);
-    fprintf(file, "grid{%d,%d;}\n", GRID_X, GRID_Y);
+    fprintf(file, "grid{%d,%d;}\n", gridX_g, gridY_g);
     if (wallCount_g > 0) {
         fprintf(file, "wall{");
         for (int wallI = 0; wallI < wallCount_g; wallI++) {
@@ -26,31 +26,38 @@ void fileHeaderSteps(FILE* file, int gen) {
         }
         fprintf(file, "}\n");
     }
-    fprintf(file, "safe{%d,%d,%d,%d;}\n", ALIVE_START_X, ALIVE_START_Y, ALIVE_END_X, ALIVE_END_Y);
+    if (aliveZone_g > 0) {
+        fprintf(file, "safe{");
+        for (int szI = 0; szI < wallCount_g; szI++) {
+            fprintf(file, "%d,%d,%d,%d,%d;", aliveZone_g[szI].startAliveX, aliveZone_g[szI].startAliveY,
+            aliveZone_g[szI].endAliveX, aliveZone_g[szI].endAliveY, aliveZone_g[szI].specification);
+        }
+        fprintf(file, "}\n");
+    }
 }
 
 void fileHeaderBrains(FILE* file, int gen) {
     fprintf(file, "head{ver:%s;gen:%d;}\n", BRAIN_EXPORT_VERSION, gen);
 }
 
-void filePosPartSteps(FILE* file, Creature* (*listOfC)[CREATURES_IN_GEN], int step) {
-    char creaturesPosString[(CREATURES_IN_GEN+1)*15];
+void filePosPartSteps(FILE* file, Creature** listOfC, int size, int step) {
+    char* creaturesPosString = (char*)malloc((creaturesInGen_g + 1) * 15 * sizeof(char));
     sprintf(creaturesPosString, "pos%d{", step);
     for (int indivC = 0; indivC < creaturesInGen_g; indivC++) {
-        sprintf(creaturesPosString, "%s%d:%d,%d;", creaturesPosString, (*listOfC)[indivC]->creatureId, (*listOfC)[indivC]->gridPosX, (*listOfC)[indivC]->gridPosY);
+        sprintf(creaturesPosString, "%s%d:%d,%d;", creaturesPosString, listOfC[indivC]->creatureId, listOfC[indivC]->gridPosX, listOfC[indivC]->gridPosY);
     }
     fprintf(file, "%s}\n", creaturesPosString);
 }
 
-void fileCrePartBrains(FILE* file, Creature* (*listOfC)[CREATURES_IN_GEN]) {
-    char creatureBrainString[(BRAIN_SIZE+1)*10];
+void fileCrePartBrains(FILE* file, Creature** listOfC, int size) {
+    char* creatureBrainString = (char*)malloc((brainSize_g + 1) * 10 * sizeof(char));
     char endChar;
     for (int indivC = 0; indivC < creaturesInGen_g; indivC++) {
         sprintf(creatureBrainString, "cre%d{", indivC);
         endChar = ',';
         for (int con = 0; con < brainSize_g; con++) {
             if (con+1 == brainSize_g) endChar = ';';
-            sprintf(creatureBrainString, "%s%x%c", creatureBrainString, (*listOfC)[indivC]->brain[con], endChar);
+            sprintf(creatureBrainString, "%s%x%c", creatureBrainString, listOfC[indivC]->brain[con], endChar);
         }
         fprintf(file, "%s}\n", creatureBrainString);
     }
