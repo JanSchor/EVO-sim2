@@ -10,9 +10,22 @@ Since I moved to uni and started learning C, I needed some project, that can gai
 This was perfect opportunity to improve the old project and make it in C.
 
 ## Current state
-The project is not finished yet. 
-Right now the major part of the simulation works, but it runs only in command line.
-Currently the export of all the steps in generation is working.
-New step would be to create separate program in python to visualize and animate the generation recording.
+The project is not finished yet.
+
+Right now major part of simulation works.
+The program does not have visualization in command line anymore, but in separate python file.
+Export of brains and generation recordings works now.
+Next step would be importing brains and scenario.
+
+* Simulation ✅
+* Generation export ✅
+* Generation visualization ✅
+* Brains export ✅
+* Brains visialization ❌
+* Generation brains import ❌
+* Dynamic running values ✅
+* Scenario import ❌
+* Scenario creator ❌
+* Additional functions and scenarios ❌
 
 There is folder named `export_formats` which has example files for how should the export look.
