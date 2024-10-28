@@ -1,4 +1,5 @@
 
+#include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
 #include "globals.h"
@@ -7,6 +8,7 @@
 #include "alive_zone.h"
 #include "wall.h"
 #include "globals.h"
+#include "help_lib.h"
 
 // Convert to format yymmdd_hhmmss
 void convertToTime(int unixTimestamp, char* buffer, size_t bufferSize) {
@@ -28,7 +30,7 @@ void fileHeaderSteps(FILE* file, int gen) {
     }
     if (aliveZone_g > 0) {
         fprintf(file, "safe{");
-        for (int szI = 0; szI < wallCount_g; szI++) {
+        for (int szI = 0; szI < aliveZoneCount_g; szI++) {
             fprintf(file, "%d,%d,%d,%d,%d;", aliveZone_g[szI].startAliveX, aliveZone_g[szI].startAliveY,
             aliveZone_g[szI].endAliveX, aliveZone_g[szI].endAliveY, aliveZone_g[szI].specification);
         }

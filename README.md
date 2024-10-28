@@ -15,7 +15,7 @@ The project is not finished yet.
 Right now major part of simulation works.
 The program does not have visualization in command line anymore, but in separate python file.
 Export of brains and generation recordings works now.
-Next step would be importing brains and scenario.
+Simulation now can be ran with prewritten scenario inside file.
 
 * Simulation ✅
 * Generation export ✅
@@ -24,8 +24,10 @@ Next step would be importing brains and scenario.
 * Brains visialization ❌
 * Generation brains import ❌
 * Dynamic running values ✅
-* Scenario import ❌
+* Scenario import ✅
 * Scenario creator ❌
 * Additional functions and scenarios ❌
+* Graphs ❌
 
-There is folder named `export_formats` which has example files for how should the export look.
+There is folder named `export_formats` which has example files for how should the export or import look.
+It also has specific README file for how should the scenario file look.

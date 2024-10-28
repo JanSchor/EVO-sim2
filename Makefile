@@ -1,5 +1,5 @@
 mainFileName = main
-srcFiles = src/main.c src/genome.c src/creature.c src/neuron.c src/grid.c src/globals.c src/alive_zone.c src/wall.c
+srcFiles = src/main.c src/genome.c src/creature.c src/neuron.c src/grid.c src/globals.c src/alive_zone.c src/wall.c src/scenario.c src/help_lib.c
 
 all: main
 main:

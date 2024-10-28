@@ -12,20 +12,21 @@
 #include "globals.h"
 #include "errors.c"
 #include "genome.h"
-#include "help_lib.c"
-
+#include "help_lib.h"
+#include "scenario.h"
 
 
 // Notes
 // fire mechanic and night
 // premade file with scenario (gen 1000 wall)
 
-
-
 // Main function
 int main() {
     // Setting clock to measure time the program took
     clock_t begin = clock();
+    Scenario* scenario = Scenario_create("./export_formats/example_scenario.txt");
+    setGeneration(scenario);
+    nextGenLine(scenario);
 
     // Error hendeling
     if (checkForErrors()) return 1;
@@ -56,32 +57,30 @@ int main() {
     Creature** genOfCreatures = (Creature**)malloc(creaturesInGen_g * sizeof(Creature*));
 
     FILE* fileSteps;
-    int workWithFileSteps = 0;
     char fileNameSteps[64];
 
     FILE* fileBrains;
-    int workWithFileBrains = 0;
     char fileNameBrains[64];
 
-    set_aliveZone(ALIVE_START_X, ALIVE_START_Y, ALIVE_END_X, ALIVE_END_Y, 0);
     int stepDone;
-    for (int i = 0; i < 300; i++) { // The value of 'n' in (i < 'n') represents number of generations, it is raw now, implemented just for tests
-        if (i == 0 || i == 285 || i == 291 || i == 5000 || i == 10000 || i == 20000 || i == 50000 || i == 100000) { // File step exports on generations
+    for (int i = scenario->startingGen; i < scenario->endingGen+1; i++) { // The value of 'n' in (i < 'n') represents number of generations, it is raw now, implemented just for tests
+        if (i == scenario->currentGen) {
+            setGeneration(scenario);
+            nextGenLine(scenario);
+        }
+        if (workWithFileSteps_g) {
             sprintf(fileNameSteps, "./exports/gen_logs/%s_sl_%d.txt", fileNameH, i);
             fileSteps = fopen(fileNameSteps, "w");
-            workWithFileSteps = 1;
             fileHeaderSteps(fileSteps, i);
         }
-        if (i == 0 || i == 285) { // File brain exports on generations
+        if (workWithFileBrains_g) {
             sprintf(fileNameBrains, "./exports/brain_logs/%s_br_%d.txt", fileNameH, i);
             fileBrains = fopen(fileNameBrains, "w");
-            workWithFileBrains = 1;
             fileHeaderBrains(fileBrains, i);
         }
-        if (i % status_g == 0) { // Status print every n generations (based on configuration file)
-            printf("%d\n", i);
+        if (i % status_g == 0) { // Status print every n generations (based on configuration file or scenario)
+            printf("Status log on gen %d:\n", i);
         }
-        if (i == WALL_GEN) set_wall(WALL_START_X, WALL_START_Y, WALL_END_X, WALL_END_Y);
         buildWall(grid); // Building all walls
         for (int j = 0; j < creaturesInGen_g; j++) {
             validGridCoords = findEmptySpaceGrid(grid);
@@ -92,11 +91,11 @@ int main() {
                 genOfCreatures[j] = Creature_create(j, (*validGridCoords)[0], (*validGridCoords)[1], brain_alive[rand()%creaturesAlive]);
             }
         }
-        if (workWithFileSteps) filePosPartSteps(fileSteps, genOfCreatures, creaturesInGen_g, 0); // Writing starting positions to gen log
-        if (workWithFileBrains) fileCrePartBrains(fileBrains, genOfCreatures, creaturesInGen_g); // Writing brains to brain log
+        if (workWithFileSteps_g) filePosPartSteps(fileSteps, genOfCreatures, creaturesInGen_g, 0); // Writing starting positions to gen log
+        if (workWithFileBrains_g) fileCrePartBrains(fileBrains, genOfCreatures, creaturesInGen_g); // Writing brains to brain log
         for (currentGenStep = 0; currentGenStep < generationSteps_g; currentGenStep++) { // Looping through each step of generation
             for (int c = 0; c < creaturesInGen_g; c++) stepDone = creatureStep(genOfCreatures[c]); // Executing step for every creature
-            if (workWithFileSteps) filePosPartSteps(fileSteps, genOfCreatures, creaturesInGen_g, currentGenStep + 1); // Writing positions after each step to gen log
+            if (workWithFileSteps_g) filePosPartSteps(fileSteps, genOfCreatures, creaturesInGen_g, currentGenStep + 1); // Writing positions after each step to gen log
         }
         
         creaturesAlive = 0;
@@ -119,14 +118,14 @@ int main() {
         clearGrid(grid);
 
         // Closing and ending with file working
-        if (workWithFileSteps) {
+        if (workWithFileSteps_g) {
             fprintf(fileSteps, "foot{ave:%d;}", creaturesAlive);
             fclose(fileSteps);
-            workWithFileSteps = 0;
+            workWithFileSteps_g = 0;
         }
-        if (workWithFileBrains) {
+        if (workWithFileBrains_g) {
             fclose(fileBrains);
-            workWithFileBrains = 0;
+            workWithFileBrains_g = 0;
         }
 
     }

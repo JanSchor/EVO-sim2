@@ -36,4 +36,8 @@ extern int actionNeurons_g;
 // Status
 extern int status_g;
 
+// Exports
+extern int workWithFileSteps_g;
+extern int workWithFileBrains_g;
+
 #endif // GLOBALS_H

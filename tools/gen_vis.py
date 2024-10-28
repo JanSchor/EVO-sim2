@@ -91,6 +91,8 @@ class GenerationData:
 
     def setSafe(self, lineVal: str) -> None:
         """Sets safe zone and criteria for GenerationData class"""
+        if lineVal == "":
+            return
         values = lineVal[:-1].split(";")
         for value in values:
             self.safeZone.append(value.split(","))

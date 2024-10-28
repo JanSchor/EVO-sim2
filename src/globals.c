@@ -6,6 +6,7 @@
 // Current step
 int currentGenStep = 0;
 
+// Creatures
 int brainSize_g = BRAIN_SIZE;
 int creaturesInGen_g = CREATURES_IN_GEN;
 
@@ -30,12 +31,9 @@ int sensoryNeurons_g = SENSORY_NEURONS;
 int innerNeurons_g = INNER_NEURONS;
 int actionNeurons_g = ACTION_NEURONS;
 
+// Exports
+int workWithFileSteps_g = 0;
+int workWithFileBrains_g = 0;
+
 // Status
 int status_g = GIVE_STATUS;
-
-/*
-Problems with globals to fix:
-
-Check for memory leaks
-Edit config or default
-*/
