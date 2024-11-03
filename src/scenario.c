@@ -264,14 +264,14 @@ void parseAndSetWall(char* value) { // try to replace some parts with sscanf
 
 
 void clearAliveArea() {
-    for (int azIdx; azIdx < aliveZoneCount_g; azIdx++) {
+    for (int azIdx = 0; azIdx < aliveZoneCount_g; azIdx++) {
         AliveZone_destroy(aliveZone_g[azIdx]);
     }
     aliveZoneCount_g = 0;
 }
 
 void clearWallArea() { // Replace with destroy
-    for (int wallIdx; wallIdx < wallCount_g; wallIdx++) {
+    for (int wallIdx = 0; wallIdx < wallCount_g; wallIdx++) {
         Wall_destroy(wall_g[wallIdx]);
     }
     wallCount_g = 0;

@@ -13,7 +13,7 @@ This was perfect opportunity to improve the old project and make it in C.
 The project is not finished yet.
 
 Right now major part of simulation works.
-The program does not have visualization in command line anymore, but in separate python file.
+The program does not have visualization in command line anymore, but in separate python app.
 Export of brains and generation recordings works now.
 Simulation now can be ran with prewritten scenario inside file.
 
