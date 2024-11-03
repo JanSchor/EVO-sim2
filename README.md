@@ -4,7 +4,7 @@ Evolution simulation based on [video](https://youtu.be/N3tRFayqVtk?si=YQMtKYalPk
 ## Why?
 I found an interest in video mentioned above, because the math and use of NN fascinated me. 
 I tried to recreate the simulation in python from scratch, but the performance was not very good. 
-The [repository](https://github.com/Waaatzon/Evolution) of simulation in python is visible on my github.
+The [repository](https://github.com/JanSchor/Evolution) of simulation in python is visible on my github.
 
 Since I moved to uni and started learning C, I needed some project, that can gain me some experience.
 This was perfect opportunity to improve the old project and make it in C.
@@ -21,7 +21,7 @@ Simulation now can be ran with prewritten scenario inside file.
 * Generation export ✅
 * Generation visualization ✅
 * Brains export ✅
-* Brains visialization ❌
+* Brains visualization ❌
 * Generation brains import ❌
 * Dynamic running values ✅
 * Scenario import ✅

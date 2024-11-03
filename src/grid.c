@@ -75,7 +75,7 @@ void buildWall(Grid* grid) {
     int pivotX;
     Wall wWall;
     for (int wallI = 0; wallI < wallCount_g; wallI++) {
-        wWall = wall_g[wallI];
+        wWall = *wall_g[wallI];
         for (pivotY = wWall.startY; pivotY < wWall.endY+1; pivotY++) {
             for (pivotX = wWall.startX; pivotX < wWall.endX+1; pivotX++) {
                 setGrid(grid, pivotX, pivotY, 1);

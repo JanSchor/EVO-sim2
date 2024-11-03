@@ -20,11 +20,11 @@ int gridY_g = GRID_Y;
 
 // Alive zone
 int aliveZoneCount_g = 0;
-AliveZone aliveZone_g[MAX_SAFE_ZONES];
+AliveZone* aliveZone_g[MAX_SAFE_ZONES];
 
 // Wall
 int wallCount_g = 0;
-Wall wall_g[MAX_WALLS];
+Wall* wall_g[MAX_WALLS];
 
 // Neurons
 int sensoryNeurons_g = SENSORY_NEURONS;

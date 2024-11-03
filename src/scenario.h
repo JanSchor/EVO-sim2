@@ -25,5 +25,7 @@ void nextGenLine(Scenario* scenario);
 void parseGridValues(char* value);
 void parseAndSetAliveZone(char* value);
 void parseAndSetWall(char* value);
+void clearAliveArea();
+void clearWallArea();
 
 #endif // SCENARIO_H

@@ -24,15 +24,15 @@ void fileHeaderSteps(FILE* file, int gen) {
     if (wallCount_g > 0) {
         fprintf(file, "wall{");
         for (int wallI = 0; wallI < wallCount_g; wallI++) {
-            fprintf(file, "%d,%d,%d,%d;", wall_g[wallI].startX, wall_g[wallI].startY, wall_g[wallI].endX, wall_g[wallI].endY);
+            fprintf(file, "%d,%d,%d,%d;", wall_g[wallI]->startX, wall_g[wallI]->startY, wall_g[wallI]->endX, wall_g[wallI]->endY);
         }
         fprintf(file, "}\n");
     }
     if (aliveZone_g > 0) {
         fprintf(file, "safe{");
         for (int szI = 0; szI < aliveZoneCount_g; szI++) {
-            fprintf(file, "%d,%d,%d,%d,%d;", aliveZone_g[szI].startAliveX, aliveZone_g[szI].startAliveY,
-            aliveZone_g[szI].endAliveX, aliveZone_g[szI].endAliveY, aliveZone_g[szI].specification);
+            fprintf(file, "%d,%d,%d,%d,%d;", aliveZone_g[szI]->startAliveX, aliveZone_g[szI]->startAliveY,
+            aliveZone_g[szI]->endAliveX, aliveZone_g[szI]->endAliveY, aliveZone_g[szI]->specification);
         }
         fprintf(file, "}\n");
     }
@@ -49,6 +49,7 @@ void filePosPartSteps(FILE* file, Creature** listOfC, int size, int step) {
         sprintf(creaturesPosString, "%s%d:%d,%d;", creaturesPosString, listOfC[indivC]->creatureId, listOfC[indivC]->gridPosX, listOfC[indivC]->gridPosY);
     }
     fprintf(file, "%s}\n", creaturesPosString);
+    free(creaturesPosString);
 }
 
 void fileCrePartBrains(FILE* file, Creature** listOfC, int size) {
@@ -63,6 +64,7 @@ void fileCrePartBrains(FILE* file, Creature** listOfC, int size) {
         }
         fprintf(file, "%s}\n", creatureBrainString);
     }
+    free(creatureBrainString);
 }
 
 char* getStringAction(int action) { // Prob useless
@@ -88,7 +90,7 @@ int isCreatureSafe(Creature* c) {
     int posY = c->gridPosY;
     AliveZone workingAliveZone;
     for (int i = 0; i < aliveZoneCount_g; i++) {
-        workingAliveZone = aliveZone_g[i];
+        workingAliveZone = *aliveZone_g[i];
         if (posX >= workingAliveZone.startAliveX &&
             posX <= workingAliveZone.endAliveX &&
             posY >= workingAliveZone.startAliveY &&
@@ -98,11 +100,11 @@ int isCreatureSafe(Creature* c) {
 }
 
 void set_aliveZone(int sx, int sy, int ex, int ey, int param) {
-    aliveZone_g[aliveZoneCount_g] = *AliveZone_create(sx, sy, ex, ey, param);
+    aliveZone_g[aliveZoneCount_g] = AliveZone_create(sx, sy, ex, ey, param);
     aliveZoneCount_g++;
 }
 
 void set_wall(int sx, int sy, int ex, int ey) {
-    wall_g[wallCount_g] = *Wall_create(sx, sy, ex, ey);
+    wall_g[wallCount_g] = Wall_create(sx, sy, ex, ey);
     wallCount_g++;
 }

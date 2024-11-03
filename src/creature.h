@@ -8,7 +8,7 @@
 
 typedef struct Creature {
     int creatureId;
-    Genome* brain;
+    Genome** brain;
     int gridPosX;
     int gridPosY;
     int* innerSinkCount;

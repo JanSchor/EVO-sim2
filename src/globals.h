@@ -22,11 +22,11 @@ extern int gridY_g;
 
 // Alive zone
 extern int aliveZoneCount_g;
-extern AliveZone aliveZone_g[MAX_SAFE_ZONES];
+extern AliveZone* aliveZone_g[MAX_SAFE_ZONES];
 
 // Wall
 extern int wallCount_g;
-extern Wall wall_g[MAX_WALLS];
+extern Wall* wall_g[MAX_WALLS];
 
 // Neurons
 extern int sensoryNeurons_g;

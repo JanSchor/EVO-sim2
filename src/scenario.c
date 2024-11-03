@@ -41,6 +41,8 @@ Scenario* Scenario_create(char filePath[MAX_FILE_PATH_SIZE]) {
 
 void Scenario_destroy(Scenario* scenario) {
     if (scenario) {
+        clearAliveArea();
+        clearWallArea();
         free(scenario);
     }
 }
@@ -59,9 +61,6 @@ int setHead(char headLine[SCENARIO_FILE_MAX_LINE_LENGTH]) {
             *colonPos = '\0';
             char* key = token;
             char* value = colonPos + 1;
-
-            //printf("Key: %s, Value: %s\n", key, value);
-            printf("Key: %s, Val: %s\n", key, value);
             if (strcmp(key, "ver") == 0) { // Version
                 printf("Scenario version: %s\n", value);
             }
@@ -136,12 +135,10 @@ int setGeneration(Scenario* scenario) {
             }
             else if (strcmp(key, "clear") == 0) { // Clear
                 if (strcmp(value, "wall") == 0) {
-                    printf("Cleared wall\n");
-                    wallCount_g = 0;
+                    clearWallArea();
                 }
                 else if (strcmp(value, "alive") == 0) {
-                    printf("Cleared az\n");
-                    aliveZoneCount_g = 0;
+                    clearAliveArea();
                 }
             }
             else {
@@ -158,6 +155,7 @@ int setGeneration(Scenario* scenario) {
     return 0;
 }
 
+// Returns number of generation based on start of the line, -1 if invalid
 int getGenNumber(char generationLine[SCENARIO_FILE_MAX_LINE_LENGTH]) {
     int generationNumber;
     if (sscanf(generationLine, "%d{", &generationNumber) == 1) {
@@ -173,7 +171,7 @@ void nextGenLine(Scenario* scenario) {
     scenario->currentGen = getGenNumber(scenario->indivLine[scenario->current_line]);
 }
 
-void parseGridValues(char* value) {
+void parseGridValues(char* value) {  // try to replace some parts with sscanf
     int i = 0, j = 0;
     char gridXStr[10], gridYStr[10];
     int commaFound = 0;
@@ -202,7 +200,7 @@ void parseGridValues(char* value) {
     }
 }
 
-void parseAndSetAliveZone(char* value) {
+void parseAndSetAliveZone(char* value) { // try to replace some parts with sscanf
     int i = 0, j = 0, field = 0;
     char aSxStr[10], aSyStr[10], aExStr[10], aEyStr[10], parStr[10];
 
@@ -234,7 +232,7 @@ void parseAndSetAliveZone(char* value) {
     }
 }
 
-void parseAndSetWall(char* value) {
+void parseAndSetWall(char* value) { // try to replace some parts with sscanf
     int i = 0, j = 0, field = 0;
     char wSxStr[10], wSyStr[10], wExStr[10], wEyStr[10];
 
@@ -262,4 +260,19 @@ void parseAndSetWall(char* value) {
     if (strlen(wSxStr) > 0 && strlen(wSyStr) > 0 && strlen(wExStr) > 0 && strlen(wEyStr) > 0) {
         set_wall(atoi(wSxStr), atoi(wSyStr), atoi(wExStr), atoi(wEyStr));
     }
+}
+
+
+void clearAliveArea() {
+    for (int azIdx; azIdx < aliveZoneCount_g; azIdx++) {
+        AliveZone_destroy(aliveZone_g[azIdx]);
+    }
+    aliveZoneCount_g = 0;
+}
+
+void clearWallArea() { // Replace with destroy
+    for (int wallIdx; wallIdx < wallCount_g; wallIdx++) {
+        Wall_destroy(wall_g[wallIdx]);
+    }
+    wallCount_g = 0;
 }

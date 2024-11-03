@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <windows.h>
 #include <math.h>
 #include "creature.h"
 #include "neuron.h"
@@ -18,7 +17,6 @@
 
 // Notes
 // fire mechanic and night
-// premade file with scenario (gen 1000 wall)
 
 // Main function
 int main() {
@@ -78,9 +76,6 @@ int main() {
             fileBrains = fopen(fileNameBrains, "w");
             fileHeaderBrains(fileBrains, i);
         }
-        if (i % status_g == 0) { // Status print every n generations (based on configuration file or scenario)
-            printf("Status log on gen %d:\n", i);
-        }
         buildWall(grid); // Building all walls
         for (int j = 0; j < creaturesInGen_g; j++) {
             validGridCoords = findEmptySpaceGrid(grid);
@@ -101,12 +96,12 @@ int main() {
         creaturesAlive = 0;
         for (int c = 0; c < creaturesInGen_g; c++) {
             if (isCreatureSafe(genOfCreatures[c])) {
-                    creaturesAlive++;
-                    for (int con = 0; con < brainSize_g; con++) {
-                        brain_alive[creaturesAlive-1][con] = genOfCreatures[c]->brain[con].connection;
-                    }
-            isCreatureSafe(genOfCreatures[c]);
+                creaturesAlive++;
+                for (int con = 0; con < brainSize_g; con++) {
+                    brain_alive[creaturesAlive-1][con] = genOfCreatures[c]->brain[con]->connection;
+                }
             }
+            
         }
 
         generationNum++;
@@ -127,15 +122,77 @@ int main() {
             fclose(fileBrains);
             workWithFileBrains_g = 0;
         }
-
+        if (i % status_g == 0) { // Status print every n generations (based on configuration file or scenario)
+            printf("Status log on gen %d:\n", i);
+            printf("\tCreatures alive: %d/%d (%.2f%%)\n", creaturesAlive, creaturesInGen_g, ((float)creaturesAlive/(float)creaturesInGen_g*100));
+        }
     }
 
     // Program end
     free(genOfCreatures);
     destroyNeurons();
+    Scenario_destroy(scenario);
     Grid_destroy(grid);
+    free(brain_alive_block);
+    free(brain_alive);
     clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
     printf("Time: %f\n", time_spent);
     return 0;
 }
+
+
+
+
+/*
+All possible mem leaks:
+
+None known
+*/
+
+
+/*
+MEM leaks fixed
+
+Creature
+    it is being allocated with many additonal arrays
+    probably biggest one
+
+Inner buffers at creature
+    created, might be as well big
+
+Malloc at genome creation
+    might be big
+
+Grid
+    should not be big and probably partly fixed
+    3 parts with malloc
+
+Gen of creatures
+    not that big
+
+aliveZone malloc
+    This one is definitelly there, not that big, but still needs to be fixed
+
+wall creation
+    same as the alive zone
+
+Scenario malloc
+    not that big
+
+Neurons mallocs
+    not that big, prob fixed already
+
+creaturesPosString
+    when writing to files
+    definitelly not fixed
+    not that big
+
+creaturesBrainString
+    same as pos
+    not that big
+
+Brain alive
+    both dimensions
+    not that big
+*/
