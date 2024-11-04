@@ -102,15 +102,12 @@ int setGeneration(Scenario* scenario) {
         }
 
     char* token = strtok(strippedLine, ";");
-    while (token != NULL && strcmp(token, "}\n") != 0) {
+    while (token != NULL && strcmp(token, "}\n") != 0 && strcmp(token, "}") != 0) {
         char* colonPos = strchr(token, ':');
         if (colonPos != NULL) {
             *colonPos = '\0';
             char* key = token;
             char* value = colonPos + 1;
-
-            //printf("Key: %s, Value: %s\n", key, value);
-
             if (strcmp(key, "alive") == 0) { // Alive zone
                 parseAndSetAliveZone(value);
             }
@@ -167,101 +164,29 @@ int getGenNumber(char generationLine[SCENARIO_FILE_MAX_LINE_LENGTH]) {
 }
 
 void nextGenLine(Scenario* scenario) {
-    scenario->current_line++;
+    scenario->current_line++; // incrementing beyond index
+    if (scenario->current_line == scenario->lineCount) return;
     scenario->currentGen = getGenNumber(scenario->indivLine[scenario->current_line]);
 }
 
-void parseGridValues(char* value) {  // try to replace some parts with sscanf
-    int i = 0, j = 0;
-    char gridXStr[10], gridYStr[10];
-    int commaFound = 0;
-
-    // Initialize buffers
-    memset(gridXStr, 0, sizeof(gridXStr));
-    memset(gridYStr, 0, sizeof(gridYStr));
-
-    while (value[i] != '\0') {
-        if (value[i] == ',') {
-            commaFound = 1;
-            j = 0; // Reset index for the second buffer
-        } else {
-            if (!commaFound) {
-                gridXStr[j++] = value[i];
-            } else {
-                gridYStr[j++] = value[i];
-            }
-        }
-        i++;
-    }
-    // Convert to integers and assign to global variables
-    if (strlen(gridXStr) > 0 && strlen(gridYStr) > 0) {
-        gridX_g = atoi(gridXStr);
-        gridY_g = atoi(gridYStr);
-    }
+void parseGridValues(char* value) {
+    int xGrid, yGrid;
+    sscanf(value, "%d,%d", &xGrid, &yGrid);
+    gridX_g = xGrid;
+    gridY_g = yGrid;
 }
 
-void parseAndSetAliveZone(char* value) { // try to replace some parts with sscanf
-    int i = 0, j = 0, field = 0;
-    char aSxStr[10], aSyStr[10], aExStr[10], aEyStr[10], parStr[10];
-
-    // Initialize buffers
-    memset(aSxStr, 0, sizeof(aSxStr));
-    memset(aSyStr, 0, sizeof(aSyStr));
-    memset(aExStr, 0, sizeof(aExStr));
-    memset(aEyStr, 0, sizeof(aEyStr));
-    memset(parStr, 0, sizeof(parStr));
-
-    while (value[i] != '\0') {
-        if (value[i] == ',') {
-            field++;
-            j = 0; // Reset index for the next buffer
-        } else {
-            switch (field) {
-                case 0: aSxStr[j++] = value[i]; break;
-                case 1: aSyStr[j++] = value[i]; break;
-                case 2: aExStr[j++] = value[i]; break;
-                case 3: aEyStr[j++] = value[i]; break;
-                case 4: parStr[j++] = value[i]; break;
-            }
-        }
-        i++;
-    }
-    // Convert to integers and call set_aliveZone
-    if (strlen(aSxStr) > 0 && strlen(aSyStr) > 0 && strlen(aExStr) > 0 && strlen(aEyStr) > 0 && strlen(parStr) > 0) {
-        set_aliveZone(atoi(aSxStr), atoi(aSyStr), atoi(aExStr), atoi(aEyStr), atoi(parStr));
-    }
+void parseAndSetAliveZone(char* value) {
+    int xStart, yStart, xEnd, yEnd, param;
+    sscanf(value, "%d,%d,%d,%d,%d", &xStart, &yStart, &xEnd, &yEnd, &param);
+    set_aliveZone(xStart, yStart, xEnd, yEnd, param);
 }
 
-void parseAndSetWall(char* value) { // try to replace some parts with sscanf
-    int i = 0, j = 0, field = 0;
-    char wSxStr[10], wSyStr[10], wExStr[10], wEyStr[10];
-
-    // Initialize buffers
-    memset(wSxStr, 0, sizeof(wSxStr));
-    memset(wSyStr, 0, sizeof(wSyStr));
-    memset(wExStr, 0, sizeof(wExStr));
-    memset(wEyStr, 0, sizeof(wEyStr));
-
-    while (value[i] != '\0') {
-        if (value[i] == ',') {
-            field++;
-            j = 0; // Reset index for the next buffer
-        } else {
-            switch (field) {
-                case 0: wSxStr[j++] = value[i]; break;
-                case 1: wSyStr[j++] = value[i]; break;
-                case 2: wExStr[j++] = value[i]; break;
-                case 3: wEyStr[j++] = value[i]; break;
-            }
-        }
-        i++;
-    }
-    // Convert to integers and call set_wall
-    if (strlen(wSxStr) > 0 && strlen(wSyStr) > 0 && strlen(wExStr) > 0 && strlen(wEyStr) > 0) {
-        set_wall(atoi(wSxStr), atoi(wSyStr), atoi(wExStr), atoi(wEyStr));
-    }
+void parseAndSetWall(char* value) {
+    int xStart, yStart, xEnd, yEnd;
+    sscanf(value, "%d,%d,%d,%d", &xStart, &yStart, &xEnd, &yEnd);
+    set_wall(xStart, yStart, xEnd, yEnd);
 }
-
 
 void clearAliveArea() {
     for (int azIdx = 0; azIdx < aliveZoneCount_g; azIdx++) {
@@ -270,7 +195,7 @@ void clearAliveArea() {
     aliveZoneCount_g = 0;
 }
 
-void clearWallArea() { // Replace with destroy
+void clearWallArea() {
     for (int wallIdx = 0; wallIdx < wallCount_g; wallIdx++) {
         Wall_destroy(wall_g[wallIdx]);
     }
