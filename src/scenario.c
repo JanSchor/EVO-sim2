@@ -20,7 +20,6 @@ Scenario* Scenario_create(char filePath[MAX_FILE_PATH_SIZE]) {
     
     fgets(scenario->indivLine[0], sizeof(scenario->indivLine[0]), scenarioFile);
     if (setHead(scenario->indivLine[0])) {
-        perror("Failed to open scenario file"); // Change this to different error
         free(scenario);
         return NULL;
     }

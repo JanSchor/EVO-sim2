@@ -24,6 +24,7 @@ int main() {
     clock_t begin = clock();
 
     char scenarioFilePath[MAX_FILE_PATH_SIZE] = "./export_formats/example_scenario.txt";
+    char brainsImportFilePath[MAX_FILE_PATH_SIZE] = "./scenarios/brain_imports/brains2.txt";
 
     Scenario* scenario = Scenario_create(scenarioFilePath);
     if (!scenario) return 1; // Print error
@@ -49,6 +50,9 @@ int main() {
     for (int i = 0; i < creaturesInGen_g; i++) {
         brain_alive[i] = brain_alive_block + i * brainSize_g;
     }
+
+    int brainsFromStart = 0; // For now, this value tells, if we want to import brains from file
+    if (brainsFromStart) loadBrainsOnStart(brainsImportFilePath, brain_alive); // Loading brains to starting generation
 
     unsigned int creaturesAlive;
     int generationNum = 0;
@@ -85,7 +89,7 @@ int main() {
         for (int j = 0; j < creaturesInGen_g; j++) {
             validGridCoords = findEmptySpaceGrid(grid);
             setGrid(grid, (*validGridCoords)[0], (*validGridCoords)[1], 10000+j);
-            if (generationNum == 0 || creaturesAlive == 0) {
+            if ((generationNum == 0 && !brainsFromStart) || creaturesAlive == 0) {
                 genOfCreatures[j] = Creature_create(j, (*validGridCoords)[0], (*validGridCoords)[1], NULL); // might make it more optimal in future, dont like two same lines
             } else {
                 genOfCreatures[j] = Creature_create(j, (*validGridCoords)[0], (*validGridCoords)[1], brain_alive[rand()%creaturesAlive]);

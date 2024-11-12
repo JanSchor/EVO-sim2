@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
+#include <string.h>
 #include "globals.h"
 #include "creature.h"
 #include "config.h"
@@ -125,4 +126,73 @@ void printStatus(int gen, int alive, clock_t start, int numOfGens) {
         printf("\tEstemated time to end: %.2f (seconds)\n", timeSinceStart/(double)gen*(numOfGens-gen));
     }
     printf("\n"); // Blank line for separation
+}
+
+void loadBrainsOnStart(char filePath[MAX_FILE_PATH_SIZE], unsigned int** brain_alive) {
+    FILE* brainsFile = fopen(filePath, "r");
+    if (!brainsFile) {
+        fprintf(stderr, "Failed to open the brains file. Path might be incorrect!\n");
+        return;
+    }
+
+    char workingLine[MAX_BRAIN_SIZE_IMPORT*9+20];
+    fgets(workingLine, sizeof(workingLine), brainsFile);
+    if (strncmp(workingLine, "head{", 5) != 0) {
+        perror("Invalid head key, check your file format for head");
+        return;
+    }
+
+    char* subString = workingLine + 5;
+    char* token = strtok(subString, ";");
+    while (token != NULL && strcmp(token, "}\n") != 0) {
+        char* colonPos = strchr(token, ':');
+        if (colonPos != NULL) {
+            *colonPos = '\0';
+            char* key = token;
+            char* value = colonPos + 1;
+            if (strcmp(key, "ver") == 0) { // Version
+                printf("Loading brain file with version %s\n", value);
+            }
+            else if (strcmp(key, "gen") == 0) { // Status
+                printf("Loaded generation number: %s\n", value);
+            }
+            else {
+                printf("Unknown key: %s\n", key);
+            }
+
+        } else {
+            printf("Invalid token format: %s\n", token);
+        }
+
+        token = strtok(NULL, ";");
+    }
+
+    int creatureIndex = 0;
+    while (fgets(workingLine, sizeof(workingLine), brainsFile)) {
+        if (strncmp(workingLine, "cre", 3) != 0) {
+            fprintf(stderr, "Invalid line detected, line was skipped!\n");
+            continue;
+        }
+        
+        char* bracePos = strchr(workingLine, '{');
+        if (bracePos == NULL) {
+            printf("Invalid line format: %s\n", workingLine);
+            continue;
+        }
+
+        char* token = strtok(bracePos + 1, ",}");
+        int brainIndex = 0;
+        while (token != NULL && brainIndex < brainSize_g) { // handle this right on input
+            unsigned int value;
+            sscanf(token, "%x", &value);
+            brain_alive[creatureIndex][brainIndex] = value;
+            token = strtok(NULL, ",}");
+            brainIndex++;
+        }
+        creatureIndex++;
+        if (creatureIndex >= creaturesInGen_g) break;
+    }
+
+    fclose(brainsFile);
+
 }

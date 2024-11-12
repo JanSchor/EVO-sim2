@@ -14,6 +14,8 @@
 #define SCENARIO_FILE_MAX_LINE_COUNT 300 // This too
 #define MAX_FILE_PATH_SIZE 500
 
+#define MAX_BRAIN_SIZE_IMPORT 20
+
 // Configuration params
 #define MAX_SAFE_ZONES 10
 #define MAX_WALLS 16

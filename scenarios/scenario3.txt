@@ -1,0 +1,5 @@
+head{ver:1.0;grid:100,100;bs:6;inn:3;status:200;}
+0{steps:300;alive:0,0,30,30,0;mr:40;cre:300;export:s;}
+100{export:s;}
+500{export:s;}
+2000{export:s;export:b;}

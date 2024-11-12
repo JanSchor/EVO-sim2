@@ -17,5 +17,6 @@ void set_aliveZone(int sx, int sy, int ex, int ey, int param);
 void set_wall(int sx, int sy, int ex, int ey);
 void swapVals(int* v1, int* v2);
 void printStatus(int gen, int alive, clock_t start, int numOfGens);
+void loadBrainsOnStart(char filePath[MAX_FILE_PATH_SIZE], unsigned int** brain_alive);
 
 #endif // HELP_LIB_H
