@@ -22,7 +22,11 @@
 int main() {
     // Setting clock to measure time the program took
     clock_t begin = clock();
-    Scenario* scenario = Scenario_create("./export_formats/example_scenario.txt");
+
+    char scenarioFilePath[MAX_FILE_PATH_SIZE] = "./export_formats/example_scenario.txt";
+
+    Scenario* scenario = Scenario_create(scenarioFilePath);
+    if (!scenario) return 1; // Print error
     setGeneration(scenario);
     nextGenLine(scenario);
 
@@ -48,6 +52,7 @@ int main() {
 
     unsigned int creaturesAlive;
     int generationNum = 0;
+    int numOfGens = scenario->endingGen - scenario->startingGen;
 
 
     // Creating list of creatures
@@ -61,7 +66,7 @@ int main() {
     char fileNameBrains[64];
 
     int stepDone;
-    for (int i = scenario->startingGen; i < scenario->endingGen+1; i++) { // The value of 'n' in (i < 'n') represents number of generations, it is raw now, implemented just for tests
+    for (int i = scenario->startingGen; i < scenario->endingGen+1; i++) {
         if (i == scenario->currentGen) {
             setGeneration(scenario);
             nextGenLine(scenario);
@@ -122,10 +127,7 @@ int main() {
             fclose(fileBrains);
             workWithFileBrains_g = 0;
         }
-        if (i % status_g == 0) { // Status print every n generations (based on configuration file or scenario)
-            printf("Status log on gen %d:\n", i);
-            printf("\tCreatures alive: %d/%d (%.2f%%)\n", creaturesAlive, creaturesInGen_g, ((float)creaturesAlive/(float)creaturesInGen_g*100));
-        }
+        if (i % status_g == 0) printStatus(i, creaturesAlive, begin, numOfGens); // Status every 'n' generation
     }
 
     // Program end

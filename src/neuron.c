@@ -25,8 +25,6 @@ Neuron* Neuron_create(
     strncpy(neuron->neuronShort, neuronShort, sizeof(neuron->neuronShort) - 1);
     neuron->neuronShort[sizeof(neuron->neuronShort) - 1] = '\0';
 
-
-
     return neuron;
 }
 

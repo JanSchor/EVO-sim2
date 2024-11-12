@@ -60,7 +60,7 @@ void fileCrePartBrains(FILE* file, Creature** listOfC, int size) {
         endChar = ',';
         for (int con = 0; con < brainSize_g; con++) {
             if (con+1 == brainSize_g) endChar = ';';
-            sprintf(creatureBrainString, "%s%x%c", creatureBrainString, listOfC[indivC]->brain[con], endChar);
+            sprintf(creatureBrainString, "%s%x%c", creatureBrainString, *listOfC[indivC]->brain[con], endChar);
         }
         fprintf(file, "%s}\n", creatureBrainString);
     }
@@ -107,4 +107,22 @@ void set_aliveZone(int sx, int sy, int ex, int ey, int param) {
 void set_wall(int sx, int sy, int ex, int ey) {
     wall_g[wallCount_g] = Wall_create(sx, sy, ex, ey);
     wallCount_g++;
+}
+
+void swapVals(int* v1, int* v2) {
+    int buffer = *v1;
+    *v1 = *v2;
+    *v2 = buffer;
+}
+
+void printStatus(int gen, int alive, clock_t start, int numOfGens) {
+    printf("Status log on gen %d:\n", gen);
+    printf("\tCreatures alive: %d/%d (%.2f%%)\n", alive, creaturesInGen_g, ((float)alive/(float)creaturesInGen_g*100));
+    if (gen > 0) {
+        clock_t timeNow = clock();
+        double timeSinceStart = (double)(timeNow - start) / CLOCKS_PER_SEC;
+        //printf("\tLasted: %f\n", timeSinceStart);
+        printf("\tEstemated time to end: %.2f (seconds)\n", timeSinceStart/(double)gen*(numOfGens-gen));
+    }
+    printf("\n"); // Blank line for separation
 }

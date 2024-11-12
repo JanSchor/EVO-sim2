@@ -18,3 +18,7 @@ void Wall_destroy(Wall* wall) {
         free(wall);
     }
 }
+
+void wallInfoDebug(Wall* wall) {
+    printf("%d, %d, %d, %d\n", wall->startX, wall->startY, wall->endX, wall->endY);
+}

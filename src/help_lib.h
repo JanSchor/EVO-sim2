@@ -15,5 +15,7 @@ char* getStringAction(int action);
 int isCreatureSafe(Creature* c);
 void set_aliveZone(int sx, int sy, int ex, int ey, int param);
 void set_wall(int sx, int sy, int ex, int ey);
+void swapVals(int* v1, int* v2);
+void printStatus(int gen, int alive, clock_t start, int numOfGens);
 
 #endif // HELP_LIB_H

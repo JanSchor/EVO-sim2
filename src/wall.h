@@ -12,4 +12,6 @@ typedef struct Wall {
 Wall* Wall_create(int startX, int startY, int endX, int andY);
 void Wall_destroy(Wall* az);
 
+void wallInfoDebug(Wall* wall);
+
 #endif // WALL_H
