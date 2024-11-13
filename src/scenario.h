@@ -27,5 +27,7 @@ void parseAndSetAliveZone(char* value);
 void parseAndSetWall(char* value);
 void clearAliveArea();
 void clearWallArea();
+void setGraph(char graphLine[SCENARIO_FILE_MAX_LINE_LENGTH]);
+void setBrains(char brainLine[SCENARIO_FILE_MAX_LINE_LENGTH]);
 
 #endif // SCENARIO_H

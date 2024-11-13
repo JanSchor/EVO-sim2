@@ -10,11 +10,14 @@ This includes basic values like number of creatures in generation or values for 
 
 Each scenario file starts with `head{}`. Inside head there are informations for simulation that do not change during the entire run of program.
 
-After head there are separate informations for each generation, where something is supposed to change.
+After head there can be two lines, that are not nescessary needed.
+First line is `brains{}`, which specifies that the simulation should start with already evolved creatures. The second line id `graph{}`.
+Graph line is telling the program to store some values during the entire simulation to create graph and some statistics from them.
+
+After that there are separate informations for each generation, where something is supposed to change.
 The lines look like this: `NUMBER{}`, where `NUMBER` represents number of generation.
 Important generations are the first one and the last one, because these define the boundaries of simulation.
 This means the simulation can start on generation `10000` and end on generation `20000`.
-This is not usefull yet, but it is ready for future implementation of importing brains.
 
 > [!CAUTION]
 > If some parameters are not set, program will replace them with default values, this can create unwanted scenario.
@@ -39,8 +42,27 @@ It does not matter in which order they are put in. Only exception is *version*, 
 * **Status** `status:n;` - This sets how often should the status be printed to console (generations).
     * `n` represents number of generation until status
     * Example: `status:50;`
+* **Sudden death** `sd:b;` - This sets how often should the status be printed to console (generations).
+    * `b` represents if sudden death is enabled or not (0 or 1)
+    * Example: `sd:1;`
 
-After `head` there should be commands for each wanted generation.
+After `head` there can be lines with `graph` or `brains`.
+I will start with the brains one. Brains line has now only 2 parameters, `path` and `name`.
+It is better to include only one of them inside the scenario, but the program will run just fine with both of them. `path` key gives specific path to the scenario file.
+On the other hand, `name` key gives only the name of the file and automatically sets the path to the `scenarios/brain_imports` folder.
+If both parameters are present, only the second one will be considered.
+Here are examples how to write this inside the scenario file:
+ * **Path** `path:path_to_file;` - This sets path to the brain import file
+    * `path_to_file` represents very specific path to the file
+    * Example: `path:./scenarios/brain_imports/brains1.txt;`
+ * **Name** `name:file;` - This passes the file name and automatically sets the path to `brain_imports` folder.
+    * `file` represents the name of the file
+    * Example: `name:brains1.txt;`
+
+Second optional line is `graph{}`.
+This line is currently not in use, but it is ready to be implemented with the graphing feature.
+
+After these lines there should be commands for each wanted generation.
 They are executed in order so it matter if some are put in front of another ones.
 This is important for `clear`, because it clears all previous areas like `alive` area or `wall`.
 All the values set are applied for all the generations after, until not defined differently.
@@ -83,8 +105,9 @@ First line of generation info sets starting parameters for simulation. If some a
 
 **Example file**:
 ```bash
-head{ver:1.0;grid:100,100;bs:6;inn:3;status:50;}
+head{ver:1.0;grid:100,100;bs:6;inn:3;status:50;sd:1;}
 0{steps:300;cre:300;mr:40;alive:0,0,5,99,0;alive:95,0,99,99,0;export:s;}
+brain{name:brains1.txt;}
 199{export:s;}
 200{wall:20,20,20,80;export:s;}
 300{clear:wall;wall:40,20,40,80;export:s;}

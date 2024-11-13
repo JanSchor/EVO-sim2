@@ -29,6 +29,8 @@
 // Simulation
 #define GENERATION_STEPS 500
 #define MUTATION_RATE 40 // Gives the chance of mutation 1 / n
+#define SUDDEN_DEATH 0 // return and handle gen 0
+#define BRAINS_FROM_START 0
 
 // Grid specifications
 #define GRID_X 30

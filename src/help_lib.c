@@ -128,7 +128,7 @@ void printStatus(int gen, int alive, clock_t start, int numOfGens) {
     printf("\n"); // Blank line for separation
 }
 
-void loadBrainsOnStart(char filePath[MAX_FILE_PATH_SIZE], unsigned int** brain_alive) {
+void loadBrainsOnStart(char filePath[MAX_FILE_PATH_SIZE], unsigned int** brain_alive, Scenario* scenario) {
     FILE* brainsFile = fopen(filePath, "r");
     if (!brainsFile) {
         fprintf(stderr, "Failed to open the brains file. Path might be incorrect!\n");
@@ -155,6 +155,10 @@ void loadBrainsOnStart(char filePath[MAX_FILE_PATH_SIZE], unsigned int** brain_a
             }
             else if (strcmp(key, "gen") == 0) { // Status
                 printf("Loaded generation number: %s\n", value);
+                if (atoi(value) != scenario->startingGen) {
+                    printf("Warning: Starting generation from brains import file is not the same as scenario starting generation!\n");
+                    printf("Starting generation from brsin file is %d, but from scenario it is %d!\n", atoi(value), scenario->startingGen);
+                }
             }
             else {
                 printf("Unknown key: %s\n", key);

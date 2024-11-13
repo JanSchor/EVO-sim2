@@ -13,6 +13,8 @@ int creaturesInGen_g = CREATURES_IN_GEN;
 // Simulation
 int generationSteps_g = GENERATION_STEPS;
 int mutationRate_g = MUTATION_RATE;
+int suddenDeath_g = SUDDEN_DEATH;
+
 
 // Grid Specifications
 int gridX_g = GRID_X;
@@ -30,6 +32,10 @@ Wall* wall_g[MAX_WALLS];
 int sensoryNeurons_g = SENSORY_NEURONS;
 int innerNeurons_g = INNER_NEURONS;
 int actionNeurons_g = ACTION_NEURONS;
+
+// Brain import
+int brainsFromStart_g = BRAINS_FROM_START;
+char brainsImportFilePath_g[MAX_FILE_PATH_SIZE] = "";
 
 // Exports
 int workWithFileSteps_g = 0;

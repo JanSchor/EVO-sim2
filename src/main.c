@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <string.h>
 #include "creature.h"
 #include "neuron.h"
 #include "grid.h"
@@ -24,7 +25,6 @@ int main() {
     clock_t begin = clock();
 
     char scenarioFilePath[MAX_FILE_PATH_SIZE] = "./export_formats/example_scenario.txt";
-    char brainsImportFilePath[MAX_FILE_PATH_SIZE] = "./scenarios/brain_imports/brains2.txt";
 
     Scenario* scenario = Scenario_create(scenarioFilePath);
     if (!scenario) return 1; // Print error
@@ -51,8 +51,7 @@ int main() {
         brain_alive[i] = brain_alive_block + i * brainSize_g;
     }
 
-    int brainsFromStart = 0; // For now, this value tells, if we want to import brains from file
-    if (brainsFromStart) loadBrainsOnStart(brainsImportFilePath, brain_alive); // Loading brains to starting generation
+    if (brainsFromStart_g) loadBrainsOnStart(brainsImportFilePath_g, brain_alive, scenario); // Loading brains to starting generation
 
     unsigned int creaturesAlive;
     int generationNum = 0;
@@ -75,28 +74,33 @@ int main() {
             setGeneration(scenario);
             nextGenLine(scenario);
         }
-        if (workWithFileSteps_g) {
-            sprintf(fileNameSteps, "./exports/gen_logs/%s_sl_%d.txt", fileNameH, i);
-            fileSteps = fopen(fileNameSteps, "w");
-            fileHeaderSteps(fileSteps, i);
-        }
-        if (workWithFileBrains_g) {
-            sprintf(fileNameBrains, "./exports/brain_logs/%s_br_%d.txt", fileNameH, i);
-            fileBrains = fopen(fileNameBrains, "w");
-            fileHeaderBrains(fileBrains, i);
-        }
         buildWall(grid); // Building all walls
         for (int j = 0; j < creaturesInGen_g; j++) {
             validGridCoords = findEmptySpaceGrid(grid);
             setGrid(grid, (*validGridCoords)[0], (*validGridCoords)[1], 10000+j);
-            if ((generationNum == 0 && !brainsFromStart) || creaturesAlive == 0) {
+            if ((generationNum == 0 && !brainsFromStart_g) || creaturesAlive == 0) {
+                if (suddenDeath_g && i != scenario->startingGen) {
+                    printf("All the creatures died in generation %d. "
+                        "This ended the simulation, because sudden death was enabled in scenario file.\n", i-1);
+                    return 0;
+                }
                 genOfCreatures[j] = Creature_create(j, (*validGridCoords)[0], (*validGridCoords)[1], NULL); // might make it more optimal in future, dont like two same lines
             } else {
                 genOfCreatures[j] = Creature_create(j, (*validGridCoords)[0], (*validGridCoords)[1], brain_alive[rand()%creaturesAlive]);
             }
         }
-        if (workWithFileSteps_g) filePosPartSteps(fileSteps, genOfCreatures, creaturesInGen_g, 0); // Writing starting positions to gen log
-        if (workWithFileBrains_g) fileCrePartBrains(fileBrains, genOfCreatures, creaturesInGen_g); // Writing brains to brain log
+        if (workWithFileSteps_g) {
+            sprintf(fileNameSteps, "./exports/gen_logs/%s_sl_%d.txt", fileNameH, i);
+            fileSteps = fopen(fileNameSteps, "w");
+            fileHeaderSteps(fileSteps, i);
+            filePosPartSteps(fileSteps, genOfCreatures, creaturesInGen_g, 0); // Writing starting positions to gen log
+        }
+        if (workWithFileBrains_g) {
+            sprintf(fileNameBrains, "./exports/brain_logs/%s_br_%d.txt", fileNameH, i);
+            fileBrains = fopen(fileNameBrains, "w");
+            fileHeaderBrains(fileBrains, i);
+            fileCrePartBrains(fileBrains, genOfCreatures, creaturesInGen_g); // Writing brains to brain log
+        }
         for (currentGenStep = 0; currentGenStep < generationSteps_g; currentGenStep++) { // Looping through each step of generation
             for (int c = 0; c < creaturesInGen_g; c++) stepDone = creatureStep(genOfCreatures[c]); // Executing step for every creature
             if (workWithFileSteps_g) filePosPartSteps(fileSteps, genOfCreatures, creaturesInGen_g, currentGenStep + 1); // Writing positions after each step to gen log

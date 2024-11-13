@@ -22,7 +22,7 @@ Simulation now can be ran with prewritten scenario inside file.
 * Generation visualization ✅
 * Brains export ✅
 * Brains visualization ❌
-* Generation brains import ❌
+* Generation brains import ✅
 * Dynamic running values ✅
 * Scenario import ✅
 * Scenario creator ❌
@@ -31,3 +31,5 @@ Simulation now can be ran with prewritten scenario inside file.
 
 There is folder named `export_formats` which has example files for how should the export or import look.
 It also has specific README file for how should the scenario file look.
+
+THe scenario file is now required for running the simulation.

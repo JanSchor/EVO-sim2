@@ -25,7 +25,9 @@ Scenario* Scenario_create(char filePath[MAX_FILE_PATH_SIZE]) {
     }
     int lineIdx = 0;
     while (fgets(scenario->indivLine[lineIdx], sizeof(scenario->indivLine[lineIdx]), scenarioFile)) {
-        lineIdx++;
+        if (strncmp(scenario->indivLine[lineIdx], "graph{", 6) == 0) setGraph(scenario->indivLine[lineIdx]);
+        else if (strncmp(scenario->indivLine[lineIdx], "brain{", 6) == 0) setBrains(scenario->indivLine[lineIdx]);
+        else lineIdx++;
     }
     fclose(scenarioFile);
     scenario->lineCount = lineIdx;
@@ -74,6 +76,9 @@ int setHead(char headLine[SCENARIO_FILE_MAX_LINE_LENGTH]) {
             }
             else if (strcmp(key, "inn") == 0) { // Inner neurons count
                 innerNeurons_g = atoi(value);
+            }
+            else if (strcmp(key, "sd") == 0) { // Sudden death
+                suddenDeath_g = atoi(value);
             }
             else {
                 printf("Unknown key: %s\n", key);
@@ -201,4 +206,62 @@ void clearWallArea() {
         Wall_destroy(wall_g[wallIdx]);
     }
     wallCount_g = 0;
+}
+
+void setGraph(char graphLine[SCENARIO_FILE_MAX_LINE_LENGTH]) {
+    char* subString = graphLine + 6;
+    char* token = strtok(subString, ";");
+    while (token != NULL && strcmp(token, "}\n") != 0) {
+        char* colonPos = strchr(token, ':');
+        if (colonPos != NULL) {
+            *colonPos = '\0';
+            char* key = token;
+            char* value = colonPos + 1;
+            if (strcmp(key, "log") == 0) { // Log graph data every n generation
+                printf("Log generation: %s\n", value);
+            }
+            else {
+                printf("Unknown key: %s\n", key);
+            }
+
+        } else {
+            printf("Invalid token format: %s\n", token);
+        }
+
+        token = strtok(NULL, ";");
+    }
+}
+
+void setBrains(char brainLine[SCENARIO_FILE_MAX_LINE_LENGTH]) {
+    char* subString = brainLine + 6;
+    char* token = strtok(subString, ";");
+    while (token != NULL && strcmp(token, "}\n") != 0) {
+        char* colonPos = strchr(token, ':');
+        if (colonPos != NULL) {
+            *colonPos = '\0';
+            char* key = token;
+            char* value = colonPos + 1;
+            // Only one of the path and name is needed.
+            // If it is only the name specified, path will automatically lead to the scenarios/brain_imports folder
+            if (strcmp(key, "path") == 0) { // Path to the file
+                strcpy(brainsImportFilePath_g, value);
+                brainsFromStart_g = 1;
+            }
+            else if (strcmp(key, "name") == 0) { // Name of the file
+                printf("File name: %s\n", value);
+                char filePath[MAX_FILE_PATH_SIZE] = "";
+                sprintf(filePath, "./scenarios/brain_imports/%s", value);
+                strcpy(brainsImportFilePath_g, filePath);
+                brainsFromStart_g = 1;
+            }
+            else {
+                printf("Unknown key: %s\n", key);
+            }
+
+        } else {
+            printf("Invalid token format: %s\n", token);
+        }
+
+        token = strtok(NULL, ";");
+    }
 }

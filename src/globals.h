@@ -15,6 +15,7 @@ extern int creaturesInGen_g;
 // Simulation
 extern int generationSteps_g;
 extern int mutationRate_g;
+extern int suddenDeath_g;
 
 // Grid Specifications
 extern int gridX_g;
@@ -33,11 +34,15 @@ extern int sensoryNeurons_g;
 extern int innerNeurons_g;
 extern int actionNeurons_g;
 
-// Status
-extern int status_g;
+// Brain import
+extern int brainsFromStart_g;
+extern char brainsImportFilePath_g[MAX_FILE_PATH_SIZE];
 
 // Exports
 extern int workWithFileSteps_g;
 extern int workWithFileBrains_g;
+
+// Status
+extern int status_g;
 
 #endif // GLOBALS_H
