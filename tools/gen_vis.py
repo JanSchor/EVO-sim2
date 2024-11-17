@@ -4,6 +4,7 @@ import dearpygui.dearpygui as dpg
 import tkinter as tk
 from tkinter import filedialog
 import time
+import os.path
 
 # Classes
 class FileProcessingError(Exception):
@@ -41,7 +42,6 @@ class GenerationData:
         while True:
             line = generationFile.readline().strip("\n")
             if not line:
-                generationFile.close()
                 break
             pos = line.find("{")
             lineKey = line[:pos]
@@ -62,6 +62,8 @@ class GenerationData:
                 case _:
                     if lineKey[:3] == "pos":
                         self.setPos(lineVal)
+        generationFile.close()
+        workWithGraphFile(self.name[0:13])
 
 
     def setHead(self, lineVal: str) -> None:
@@ -151,9 +153,16 @@ def updateGUI() -> None:
     dpg.configure_item("ca_txt", pos=(840-ld.offset, 280))
     dpg.set_value("ca_txt", "Creatures alive: "+ld.footDict["ave"])
 
+    dpg.configure_item("lfg_btn", pos=(840-ld.offset, 650), width=240+ld.offset)
+    dpg.configure_item("flg_txt", pos=(840-ld.offset, 705))
+    dpg.configure_item("sg_btn", pos=(840-ld.offset, 750), width=240+ld.offset)
+
     
     dpg.delete_item("simArea")
     createSimArea()
+
+def updateGraphGUI():
+    pass
 
 def createSimArea(step = 0) -> None:
     """Creates drawlist for animation"""
@@ -190,30 +199,103 @@ def drawCreatures(step: int) -> None:
         cPos = ld.records[step][c]
         dpg.draw_circle((cPos[0]*ld.sqSize+10+(ld.sqSize//2), cPos[1]*ld.sqSize+10+(ld.sqSize//2)), ld.sqSize//2, color=(255, 0, 0), fill=(255, 0, 0, 150))
 
-def selectFile() -> None:
-    """Function that opens file explorer"""
+
+def selectFile() -> str:
+    """Opens file explorer and returns path to selected txt file."""
     root = tk.Tk()
     root.withdraw()
     filePath = filedialog.askopenfilename(
         title="Select a file",
         filetypes=(("Text files", "*.txt"), ("All files", "*.*"))
     )
+    return filePath
+
+def workWithSimFile() -> None:
+    """Takes selected file path and loads animation."""
+    filePath = selectFile()
     if not filePath:
         return
     global ld
     ld = GenerationData(filePath)
     updateGUI()
 
+def workWithGraphFile(*args) -> None:
+    """Takes path from selected file and sets it to graphPath global var."""
+    global graphPath
+    if len(args) == 1:
+        tempPath = "./exports/graph_logs/"+args[0]+"_graph.txt"
+        if not os.path.isfile(tempPath):
+            return
+        # dialog to load file if found
+    else:
+        tempPath = selectFile()
+        if not tempPath:
+            return
+    graphPath = tempPath
+    fileName = graphPath.split("/")[-1]
+    dpg.set_value("flg_txt", "Graph file loaded:\n"+fileName)
+
+
+def createGraphWin() -> None:
+    """Takes currently loaded path and creates graph out of that file."""
+    if not graphPath:
+        return
+    
+    fileName = graphPath.split("/")[-1]
+    if dpg.does_alias_exist(fileName):
+        dpg.delete_item(fileName)
+
+    graphFile = open(graphPath, 'r')
+    if not graphFile:
+        return
+    
+    version = ""
+    aliveDataX = []
+    aliveDataY = []
+    headDictGraph = {"ver":"N/A"}
+    
+    while True:
+        line = graphFile.readline().strip("\n")
+        if not line:
+            break
+        pos = line.find("{")
+        lineKey = line[:pos]
+        lineVal = line[pos+1:-1]
+        if version == "" and lineKey != "head":
+            raise FileProcessingError("Expected header with version as first line on input file!")
+        match lineKey:
+            case "head": # Head line
+                values = lineVal[:-1].split(";")
+                for val in values:
+                    splitVal = val.split(":")
+                    headDictGraph[splitVal[0]] = splitVal[1]
+                if "ver" in headDictGraph.keys():
+                    version = headDictGraph["ver"]
+
+            case "alive": # Creatures alive values
+                values = lineVal[:-1].split(";")
+                for val in values:
+                    splitVal = val.split(":")
+                    aliveDataX.append(int(splitVal[0]))
+                    aliveDataY.append(int(splitVal[1]))
+
+    with dpg.window(label=fileName, width=1000, height=600, pos=(400, 200), no_resize=True, tag=fileName):
+        with dpg.plot(label="Line Series", height=550, width=-1):
+            dpg.add_plot_legend()
+            dpg.add_plot_axis(dpg.mvXAxis, label="Generation")
+            with dpg.plot_axis(dpg.mvYAxis, label="Creatures alive"):
+                dpg.add_line_series(aliveDataX, aliveDataY, label="Data")
+
+    graphFile.close()
+    
 def animate() -> None:
     """Calls needed functions to create the animation"""
     for animStep in range(len(ld.records)):
         dpg.delete_item("simArea")
         createSimArea(animStep)
-        time.sleep(1/len(ld.records)*int(dpg.get_value("at_inp")))
+        time.sleep(1/len(ld.records)*int(dpg.get_value("at_inp"))) # change this to not work with sleep, but with program loop instead
 
-
-# DPG initialization
-def main():
+def main() -> None:
     dpg.create_context()
     dpg.create_viewport(title='Generation animation', width=1200, height=800)
 
@@ -221,10 +303,13 @@ def main():
     global ld
     ld = GenerationData(filePath)
 
+    global graphPath
+    graphPath = None
+
     # Creating window for the animation
-    with dpg.window(label="Animation", width=1100, height=860, no_resize=True, tag="animWindow"):
+    with dpg.window(label="Animation", width=1100, height=860, no_resize=True, tag="animWindow", no_close=True):
         createSimArea()
-        dpg.add_button(label="Load file", pos=(840-ld.offset, 40), width=240+ld.offset, height=50, callback=selectFile, tag="lf_btn")
+        dpg.add_button(label="Load simulation file", pos=(840-ld.offset, 40), width=240+ld.offset, height=50, callback=workWithSimFile, tag="lf_btn")
         dpg.add_text("File loaded:\n"+ld.name, pos=(840-ld.offset, 95), tag="fl_txt")
         dpg.add_button(label="Start animation", pos=(840-ld.offset, 140), width=240+ld.offset, height=50, tag="sa_btn", callback=animate)
         dpg.add_input_int(label="Animation time (sec)", pos=(840-ld.offset, 200), width=100+ld.offset,
@@ -232,6 +317,16 @@ def main():
         dpg.draw_line(p1=(830-ld.offset, 220), p2=(1075, 220), tag="bo_lne")
         dpg.add_text("Generation: "+ld.headDict["gen"], pos=(840-ld.offset, 260), tag="ge_txt")
         dpg.add_text("Creatures alive: "+ld.footDict["ave"], pos=(840-ld.offset, 280), tag="ca_txt")
+
+        dpg.add_button(label="Load graph file", pos=(840-ld.offset, 650), width=240+ld.offset, height=50, callback=workWithGraphFile, tag="lfg_btn")
+        dpg.add_text("Graph file loaded:\n"+ld.name, pos=(840-ld.offset, 705), tag="flg_txt")
+        dpg.add_button(label="Show graph", pos=(840-ld.offset, 750), width=240+ld.offset, height=50, tag="sg_btn", callback=createGraphWin)
+
+
+    updateGraphGUI()
+
+    while dpg.is_dearpygui_running(): # Loop of the app - use to generate animation steps in future
+        dpg.render_dearpygui_frame()
 
     dpg.setup_dearpygui()
     dpg.show_viewport()

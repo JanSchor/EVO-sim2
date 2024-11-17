@@ -27,9 +27,9 @@ Simulation now can be ran with prewritten scenario inside file.
 * Scenario import ✅
 * Scenario creator ❌
 * Additional functions and scenarios ❌
-* Graphs ❌
+* Graphs ✅
 
 There is folder named `export_formats` which has example files for how should the export or import look.
 It also has specific README file for how should the scenario file look.
 
-THe scenario file is now required for running the simulation.
+The scenario file is now required for running the simulation.
