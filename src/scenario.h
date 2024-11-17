@@ -13,6 +13,7 @@ typedef struct Scenario {
     int endingGen;
     int currentGen;
     int current_line;
+    int isGraph;
 } Scenario;
 
 Scenario* Scenario_create(char filePath[MAX_FILE_PATH_SIZE]);
@@ -27,7 +28,7 @@ void parseAndSetAliveZone(char* value);
 void parseAndSetWall(char* value);
 void clearAliveArea();
 void clearWallArea();
-void setGraph(char graphLine[SCENARIO_FILE_MAX_LINE_LENGTH]);
+void setGraph(Scenario* scenario, char graphLine[SCENARIO_FILE_MAX_LINE_LENGTH]);
 void setBrains(char brainLine[SCENARIO_FILE_MAX_LINE_LENGTH]);
 
 #endif // SCENARIO_H

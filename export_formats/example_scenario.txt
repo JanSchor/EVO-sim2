@@ -1,5 +1,6 @@
 head{ver:1.0;grid:100,100;bs:6;inn:3;status:50;sd:0;}
 brain{name:brains2.txt;}
+graph{log:1;al:1;}
 0{steps:300;alive:0,0,5,99,0;alive:95,0,99,99,0;mr:40;cre:300;export:s;}
 199{export:s;}
 200{wall:20,20,20,80;export:s;}

@@ -43,3 +43,7 @@ int workWithFileBrains_g = 0;
 
 // Status
 int status_g = GIVE_STATUS;
+
+// Graph
+int logEveryGen_g = 1;
+int trackAlive_g = 0;

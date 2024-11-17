@@ -157,7 +157,7 @@ void loadBrainsOnStart(char filePath[MAX_FILE_PATH_SIZE], unsigned int** brain_a
                 printf("Loaded generation number: %s\n", value);
                 if (atoi(value) != scenario->startingGen) {
                     printf("Warning: Starting generation from brains import file is not the same as scenario starting generation!\n");
-                    printf("Starting generation from brsin file is %d, but from scenario it is %d!\n", atoi(value), scenario->startingGen);
+                    printf("Starting generation from brain file is %d, but from scenario it is %d!\n", atoi(value), scenario->startingGen);
                 }
             }
             else {

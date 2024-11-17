@@ -10,6 +10,7 @@
 // File working
 #define GEN_EXPORT_VERSION "1.0"
 #define BRAIN_EXPORT_VERSION "1.0"
+#define GRAPH_EXPORT_VERSION "1.0"
 #define SCENARIO_FILE_MAX_LINE_LENGTH 200 // Maybe I will make this dynamically in future
 #define SCENARIO_FILE_MAX_LINE_COUNT 300 // This too
 #define MAX_FILE_PATH_SIZE 500

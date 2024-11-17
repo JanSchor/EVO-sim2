@@ -14,6 +14,7 @@
 #include "genome.h"
 #include "help_lib.h"
 #include "scenario.h"
+#include "graph.h"
 
 
 // Notes
@@ -50,6 +51,13 @@ int main() {
     for (int i = 0; i < creaturesInGen_g; i++) {
         brain_alive[i] = brain_alive_block + i * brainSize_g;
     }
+
+    // Graph init
+    Graph* graph;
+    if (scenario->isGraph) {
+        graph = Graph_create(scenario->endingGen - scenario->startingGen + 1); // Handle returning NULL
+    }
+    
 
     if (brainsFromStart_g) loadBrainsOnStart(brainsImportFilePath_g, brain_alive, scenario); // Loading brains to starting generation
 
@@ -136,17 +144,34 @@ int main() {
             workWithFileBrains_g = 0;
         }
         if (i % status_g == 0) printStatus(i, creaturesAlive, begin, numOfGens); // Status every 'n' generation
+        if (scenario->isGraph && ((scenario->startingGen - i) % logEveryGen_g == 0)) {
+            trackGeneration(graph, (i - scenario->startingGen), creaturesAlive); // Log gen into graph
+        }
     }
 
-    // Program end
-    free(genOfCreatures);
+    /*
+    PROGRAM END
+    */
+
+    // Export graph
+    if (scenario->isGraph) graphExport(graph, fileNameH);
+
+    // Free memory for every structs
     destroyNeurons();
+    if (scenario->isGraph) Graph_destroy(graph);
     Scenario_destroy(scenario);
     Grid_destroy(grid);
+
+    // Free memory for all dynamically allocated arrays
+    free(genOfCreatures);
     free(brain_alive_block);
     free(brain_alive);
+
+    // Calculate time of program
     clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
     printf("Time: %f\n", time_spent);
+
+    // Final return
     return 0;
 }

@@ -24,8 +24,9 @@ Scenario* Scenario_create(char filePath[MAX_FILE_PATH_SIZE]) {
         return NULL;
     }
     int lineIdx = 0;
+    scenario->isGraph = 0;
     while (fgets(scenario->indivLine[lineIdx], sizeof(scenario->indivLine[lineIdx]), scenarioFile)) {
-        if (strncmp(scenario->indivLine[lineIdx], "graph{", 6) == 0) setGraph(scenario->indivLine[lineIdx]);
+        if (strncmp(scenario->indivLine[lineIdx], "graph{", 6) == 0) setGraph(scenario, scenario->indivLine[lineIdx]);
         else if (strncmp(scenario->indivLine[lineIdx], "brain{", 6) == 0) setBrains(scenario->indivLine[lineIdx]);
         else lineIdx++;
     }
@@ -208,7 +209,7 @@ void clearWallArea() {
     wallCount_g = 0;
 }
 
-void setGraph(char graphLine[SCENARIO_FILE_MAX_LINE_LENGTH]) {
+void setGraph(Scenario* scenario, char graphLine[SCENARIO_FILE_MAX_LINE_LENGTH]) {
     char* subString = graphLine + 6;
     char* token = strtok(subString, ";");
     while (token != NULL && strcmp(token, "}\n") != 0) {
@@ -218,7 +219,10 @@ void setGraph(char graphLine[SCENARIO_FILE_MAX_LINE_LENGTH]) {
             char* key = token;
             char* value = colonPos + 1;
             if (strcmp(key, "log") == 0) { // Log graph data every n generation
-                printf("Log generation: %s\n", value);
+                logEveryGen_g = atoi(value);
+            }
+            else if (strcmp(key, "al") == 0) { // Track number of creatures that survived
+                trackAlive_g = atoi(value);
             }
             else {
                 printf("Unknown key: %s\n", key);
@@ -230,6 +234,7 @@ void setGraph(char graphLine[SCENARIO_FILE_MAX_LINE_LENGTH]) {
 
         token = strtok(NULL, ";");
     }
+    scenario->isGraph = 1;
 }
 
 void setBrains(char brainLine[SCENARIO_FILE_MAX_LINE_LENGTH]) {

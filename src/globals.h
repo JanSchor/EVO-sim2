@@ -45,4 +45,8 @@ extern int workWithFileBrains_g;
 // Status
 extern int status_g;
 
+// Graph
+extern int logEveryGen_g;
+extern int trackAlive_g;
+
 #endif // GLOBALS_H

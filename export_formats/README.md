@@ -60,7 +60,16 @@ Here are examples how to write this inside the scenario file:
     * Example: `name:brains1.txt;`
 
 Second optional line is `graph{}`.
-This line is currently not in use, but it is ready to be implemented with the graphing feature.
+This line tells the simulation which overall data should be exported.
+This data should be mainly used for plotting into the graph.
+Great example of this should be the number of creatures alive in each generation.
+Here are some commands that can be put inside the `graph{}`:
+ * **Log** `log:n;` - Sets value for how often will the data be exported, n = 3 will export generation 0, 3, 6 ...
+    * `n` represents the value for number of generations
+    * Example: `log:1;`
+ * **Alive tracking** `al:bool;` - This tells the simulation to track number f creatures alive.
+    * `bool` is bit value to say if this should be tracked. 0 for no, 1 for yes.
+    * Example: `al:1;`
 
 After these lines there should be commands for each wanted generation.
 They are executed in order so it matter if some are put in front of another ones.
@@ -164,4 +173,7 @@ cre2{7b9d8e4f,4a1b2c3d,4e5f6a7b,8c9d0e1f,2a3b4c5d,6e7f8a9b;}
 The beginning of the line shows the id of tracked creature. Each genome hex is separated by `,` and the line ends with `;`.
 
 ## Example steps log
+File information is not here yet, will be in future.
+
+## Example graph log
 File information is not here yet, will be in future.
