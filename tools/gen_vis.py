@@ -60,7 +60,8 @@ class GenerationData:
                 "wall": self.setWall,
                 "foot": self.setFoot
                 }
-            linesFunctionsDict.get(lineKey, self.setNone)(lineVal)
+            if lineKey in linesFunctionsDict.keys():
+                linesFunctionsDict.get(lineKey)(lineVal)
             if lineKey[:3] == "pos":
                 self.setPos(lineVal)
 
@@ -73,6 +74,11 @@ class GenerationData:
                 dpg.remove_alias("graph_window_text")
             self.graphWinTime = int(time.time())+15
             self.createGraphFoundWindow()
+
+        animRun.currentStep = 0
+        animRun.animRunning = False
+        dpg.set_value("cs_txt", "Current step: " + str(animRun.currentStep) + " / " + str(len(loadedData.records)))
+        resetAnimation()
 
 
     def setHead(self, lineVal: str) -> None:
@@ -121,7 +127,7 @@ class GenerationData:
                 wa[cord] = int(wa[cord])
 
     def setPos(self, lineVal: str) -> None:
-        """Created dict with creature positions for each step and appends records in GenerationData class"""
+        """Creates dict with creature positions for each step and appends records in GenerationData class"""
         values = lineVal[:-1].split(";")
         stepDict = {}
         for value in values:
@@ -131,10 +137,6 @@ class GenerationData:
                 val[valI] = int(val[valI])
             stepDict[int(key)] = val
         self.records.append(stepDict)
-
-    def setNone(self, lineVal: str) -> None:
-        """This function is definitelly a war crime"""
-        return
 
     def setEmpty(self) -> None:
         """Sets GenerationData to default values"""
@@ -176,7 +178,7 @@ class AnimRun():
     """CLass for setting some values to the animation"""
     def __init__(self) -> None:
         self.animRunning = False
-        self.animTime = 5
+        self.stepsPerSec = 5
         self.startAnimUnix = time.time()
         self.currentStep = 0
                 
@@ -191,25 +193,34 @@ def updateGUI() -> None:
     dpg.configure_item("fl_txt", pos=(840-loadedData.offset, 95))
     dpg.set_value("fl_txt", "File loaded:\n"+loadedData.name)
     dpg.configure_item("sa_btn", pos=(840-loadedData.offset, 140), width=240+loadedData.offset)
-    dpg.configure_item("at_inp", pos=(840-loadedData.offset, 200), width=100+loadedData.offset)
-    dpg.configure_item("bo_lne", p1=(830-loadedData.offset, 220), p2=(1075, 220))
-    dpg.configure_item("ge_txt", pos=(840-loadedData.offset, 260))
+    dpg.configure_item("ra_btn", pos=(840-loadedData.offset, 200), width=240+loadedData.offset)
+    dpg.configure_item("at_inp", pos=(840-loadedData.offset, 260), width=100+loadedData.offset)
+    dpg.configure_item("bo_lne", p1=(830-loadedData.offset, 280))
+    dpg.configure_item("ge_txt", pos=(840-loadedData.offset, 320))
     dpg.set_value("ge_txt", "Generation: "+loadedData.headDict["gen"])
-    dpg.configure_item("ca_txt", pos=(840-loadedData.offset, 280))
+    dpg.configure_item("ca_txt", pos=(840-loadedData.offset, 340))
     dpg.set_value("ca_txt", "Creatures survived: "+loadedData.footDict["ave"])
-    dpg.configure_item("cs_txt", pos=(840-loadedData.offset, 300))
+    dpg.configure_item("cs_txt", pos=(840-loadedData.offset, 360))
     dpg.set_value("cs_txt", "Current step: " + str(animRun.currentStep) + " / " + str(len(loadedData.records)))
+
+    dpg.configure_item("ms_txt", pos=(840-loadedData.offset, 390))
+    dpg.configure_item("stepsBtnP1", pos=(840-loadedData.offset, 420))
+    dpg.configure_item("stepsBtnP10", pos=(840-loadedData.offset+50, 420))
+    dpg.configure_item("stepsBtnP50", pos=(840-loadedData.offset+100, 420))
+    dpg.configure_item("stepsBtnN1", pos=(840-loadedData.offset, 450))
+    dpg.configure_item("stepsBtnN10", pos=(840-loadedData.offset+50, 450))
+    dpg.configure_item("stepsBtnN50", pos=(840-loadedData.offset+100, 450))
 
     dpg.configure_item("lfg_btn", pos=(840-loadedData.offset, 650), width=240+loadedData.offset)
     dpg.configure_item("flg_txt", pos=(840-loadedData.offset, 705))
     dpg.configure_item("sg_btn", pos=(840-loadedData.offset, 750), width=240+loadedData.offset)
 
-    
-    dpg.delete_item("simArea")
     createSimArea()
 
 def createSimArea(step = 0) -> None:
     """Creates drawlist for animation"""
+    if dpg.does_alias_exist("simArea"):
+        dpg.delete_item("simArea")
     with dpg.drawlist(width=820, height=820, pos=(0, 0), parent="animWindow", tag="simArea"):
         dpg.draw_rectangle((10, 10), (811-loadedData.offset, 811-(800%loadedData.grid[1])), color=(255, 255, 255))
         drawSafeZone()
@@ -239,6 +250,8 @@ def drawWall() -> None:
 
 def drawCreatures(step: int) -> None:
     """Draws all the creatures for specific step"""
+    if step >= len(loadedData.records):
+        step = len(loadedData.records)-1
     for c in loadedData.records[step].keys():
         cPos = loadedData.records[step][c]
         dpg.draw_circle((cPos[0]*loadedData.sqSize+10+(loadedData.sqSize//2), cPos[1]*loadedData.sqSize+10+(loadedData.sqSize//2)), loadedData.sqSize//2, color=(255, 0, 0), fill=(255, 0, 0, 150))
@@ -335,10 +348,45 @@ def createGraphWin() -> None:
     
 def animate() -> None:
     """Calls needed functions to start the animation"""
+    if not loadedData.records:
+        return
     animRun.animRunning = True
     animRun.startAnimUnix = time.time()
-    animRun.animTime = int(dpg.get_value("at_inp"))
+    animRun.stepsPerSec = int(dpg.get_value("at_inp"))
     animRun.currentStep = 0
+    dpg.configure_item("sa_btn", label="Stop animation", callback=stopAnimation)
+
+def stopAnimation() -> None:
+    """Stops the animation"""
+    animRun.animRunning = False
+    dpg.configure_item("sa_btn", label="Continue animation", callback=continueAnimation)
+
+def continueAnimation() -> None:
+    """Resumes the animation"""
+    animRun.animRunning = True
+    animRun.stepsPerSec = int(dpg.get_value("at_inp"))
+    animRun.startAnimUnix = time.time() - (animRun.currentStep / animRun.stepsPerSec)
+    dpg.configure_item("sa_btn", label="Stop animation", callback=stopAnimation)
+
+def resetAnimation() -> None:
+    """Resets the animation"""
+    animRun.animRunning = False
+    animRun.currentStep = 0
+    dpg.configure_item("sa_btn", label="Start animation", callback=animate)
+    createSimArea(animRun.currentStep)
+    dpg.set_value("cs_txt", "Current step: " + str(animRun.currentStep) + " / " + str(len(loadedData.records)))
+
+def modStep(mod) -> None:
+    """Modifies the current step by given modifyer"""
+    currStep = animRun.currentStep
+    currStep += mod
+    if currStep < 0:
+        currStep = 0
+    elif currStep >= len(loadedData.records):
+        currStep = len(loadedData.records)
+    animRun.currentStep = currStep
+    createSimArea(animRun.currentStep)
+    dpg.set_value("cs_txt", "Current step: " + str(animRun.currentStep) + " / " + str(len(loadedData.records)))
 
 def createAnimationWindow() -> None:
     """Creation of GUI for animation window"""
@@ -348,13 +396,23 @@ def createAnimationWindow() -> None:
             dpg.add_button(label="Load simulation file", pos=(840-loadedData.offset, 40), width=240+loadedData.offset, height=50, callback=workWithSimFile, tag="lf_btn")
             dpg.add_text("File loaded:\n"+loadedData.name, pos=(840-loadedData.offset, 95), tag="fl_txt")
             dpg.add_button(label="Start animation", pos=(840-loadedData.offset, 140), width=240+loadedData.offset, height=50, tag="sa_btn", callback=animate)
-            dpg.add_input_int(label="Animation time (sec)", pos=(840-loadedData.offset, 200), width=100+loadedData.offset,
-                            min_value=1, min_clamped=True, default_value=5, tag="at_inp")
-            dpg.draw_line(p1=(830-loadedData.offset, 220), p2=(1075, 220), tag="bo_lne")
-            dpg.add_text("Generation: "+loadedData.headDict["gen"], pos=(840-loadedData.offset, 260), tag="ge_txt")
-            dpg.add_text("Creatures survived: "+loadedData.footDict["ave"], pos=(840-loadedData.offset, 280), tag="ca_txt")
+            dpg.add_button(label="Reset animation", pos=(840-loadedData.offset, 200), width=240+loadedData.offset, height=50, tag="ra_btn", callback=resetAnimation)
+            dpg.add_input_int(label="Steps per sec", pos=(840-loadedData.offset, 260), width=100+loadedData.offset,
+                            min_value=1, min_clamped=True, default_value=60, tag="at_inp")
+            dpg.draw_line(p1=(830-loadedData.offset, 280), p2=(1075, 280), tag="bo_lne")
+            dpg.add_text("Generation: "+loadedData.headDict["gen"], pos=(840-loadedData.offset, 320), tag="ge_txt")
+            dpg.add_text("Creatures survived: "+loadedData.footDict["ave"], pos=(840-loadedData.offset, 340), tag="ca_txt")
             dpg.add_text("Current step: " + str(animRun.currentStep) + " / " + str(len(loadedData.records)),
-                         pos=(840-loadedData.offset, 300), tag="cs_txt")
+                         pos=(840-loadedData.offset, 360), tag="cs_txt")
+            
+            dpg.add_text("Manual steps:", pos=(840-loadedData.offset, 390), tag="ms_txt")
+            dpg.add_button(label="+1", width=40, pos=(840-loadedData.offset, 420), tag="stepsBtnP1", callback=lambda:modStep(1))
+            dpg.add_button(label="+10", width=40, pos=(840-loadedData.offset+50, 420), tag="stepsBtnP10", callback=lambda:modStep(10))
+            dpg.add_button(label="+50", width=40, pos=(840-loadedData.offset+100, 420), tag="stepsBtnP50", callback=lambda:modStep(50))
+
+            dpg.add_button(label="-1", width=40, pos=(840-loadedData.offset, 450), tag="stepsBtnN1", callback=lambda:modStep(-1))
+            dpg.add_button(label="-10", width=40, pos=(840-loadedData.offset+50, 450), tag="stepsBtnN10", callback=lambda:modStep(-10))
+            dpg.add_button(label="-50", width=40, pos=(840-loadedData.offset+100, 450), tag="stepsBtnN50", callback=lambda:modStep(-50))
 
             dpg.add_button(label="Load graph file", pos=(840-loadedData.offset, 650), width=240+loadedData.offset, height=50, callback=workWithGraphFile, tag="lfg_btn")
             dpg.add_text("Graph file loaded:\n"+loadedData.name, pos=(840-loadedData.offset, 705), tag="flg_txt")
@@ -407,14 +465,13 @@ def main() -> None:
     while dpg.is_dearpygui_running():
         if animRun.animRunning:
             currTime = time.time()
-            currentStep = int((currTime - animRun.startAnimUnix)*len(loadedData.records)/animRun.animTime)
+            currentStep = int((currTime - animRun.startAnimUnix)*animRun.stepsPerSec)
             if currentStep > len(loadedData.records):
                 currentStep = len(loadedData.records)
                 animRun.animRunning = False
             animRun.currentStep = currentStep
             dpg.set_value("cs_txt", "Current step: " + str(animRun.currentStep) + " / " + str(len(loadedData.records)))
-            dpg.delete_item("simArea")
-            createSimArea(currentStep-1)
+            createSimArea(animRun.currentStep)
         
         if loadedData.graphWinTime < int(time.time()) and dpg.does_alias_exist("file_found_win"):
             dpg.delete_item("file_found_win")
