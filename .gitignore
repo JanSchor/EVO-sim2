@@ -1,0 +1,4 @@
+exports/*
+.vscode
+todo.txt
+*.exe

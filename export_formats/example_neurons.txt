@@ -1,0 +1,12 @@
+head{ver:1.0;ncount:10;inner:3}
+n1{type:sensory;id:0;name:Random;short:Rnd}
+n2{type:sensory;id:1;name:Age;short:Age}
+n3{type:sensory;id:2;name:PositionX;short:PoX}
+n4{type:sensory;id:3;name:PositionY;short:PoY}
+n5{type:sensory;id:4;name:BorderDistX;short:BoX}
+n6{type:sensory;id:5;name:BorderDistY;short:BoY}
+n7{type:action;id:0;name:MoveRandom;short:MvR}
+n8{type:action;id:1;name:MoveNorth;short:MvN}
+n9{type:action;id:2;name:MoveSouth;short:MvS}
+n10{type:action;id:3;name:MoveEast;short:MvE}
+n11{type:action;id:4;name:MoveWest;short:MvW}

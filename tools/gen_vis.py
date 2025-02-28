@@ -67,13 +67,12 @@ class GenerationData:
 
         generationFile.close()
         
-        if self.checkForGraphFile(self.name[0:13]) and self.name[0:13] != dpg.get_value("flg_txt")[19:32]:
-            if dpg.does_alias_exist("file_found_win"):
-                dpg.delete_item("file_found_win")
-            if dpg.does_alias_exist("graph_window_text"):
-                dpg.remove_alias("graph_window_text")
-            self.graphWinTime = int(time.time())+15
-            self.createGraphFoundWindow()
+        isGraph = self.checkForGraphFile(self.name[0:13])
+        isBrains = self.checkForBrainsFile(self.name[0:13], self.headDict["gen"])
+        if (isGraph and self.name[0:13] != dpg.get_value("flg_txt")[19:32]) or (isBrains and self.name[0:13] != dpg.get_value("flb_txt")[20:33]):
+            destroyFileFoundWin()
+            self.graphWinTime = int(time.time()) + 25 # + n is number of seconds the dialog will be visible
+            self.createGraphFoundWindow(isGraph,  isBrains)
 
         animRun.currentStep = 0
         animRun.animRunning = False
@@ -159,18 +158,33 @@ class GenerationData:
         if os.path.isfile(tempPath):
             return True
         return False
+
+    def checkForBrainsFile(self, name, gen) -> bool:
+        """Checks if graph file with coresponding name exists"""
+        tempPath = "./exports/brain_logs/"+name+"_br_"+gen+".txt"
+        if os.path.isfile(tempPath):
+            return True
+        return False
     
-    def createGraphFoundWindow(self) -> None:
+    def createGraphFoundWindow(self, graphFound, brainFound) -> None:
         """Creates popup window for loading graph dialog"""
-        graphFoundWinWidth = 400
-        graphFoundWinHeight = 100
+        graphFoundWinWidth = 300
+        graphFoundWinHeight = 130
         with dpg.window(label="", width=graphFoundWinWidth, height=graphFoundWinHeight,
                         pos=((viewportWidth//2)-(graphFoundWinWidth//2), 20),
                         no_resize=True, no_title_bar=True, no_move=True, no_close=True,
                         tag="file_found_win"):
-            dpg.add_text("Graph file found for loaded animation. Load?", wrap=graphFoundWinWidth-20, tag="graph_window_text")
-            dpg.add_button(label="Load", pos=(20, 55), width=70, height=30, callback=lambda:workWithGraphFile(self.name[0:13]))
-            dpg.add_button(label="Cancel", pos=(100, 55), width=70, height=30, callback=lambda:dpg.delete_item("file_found_win"))
+            dpg.add_text("Brains or graph files found for animation, Load?", pos=(20, 10), wrap=graphFoundWinWidth-30, tag="graph_window_text")
+            dpg.add_checkbox(label="Load brains", pos=(20, 55), default_value=brainFound, tag="load_brains", enabled=brainFound)
+            if not brainFound:
+                with dpg.tooltip(dpg.last_item()):
+                    dpg.add_text("Brain file does not exist")
+            dpg.add_checkbox(label="Load graph", pos=(140, 55), default_value=graphFound, tag="load_graph", enabled=graphFound)
+            if not graphFound:
+                with dpg.tooltip(dpg.last_item()):
+                    dpg.add_text("Graph file does not exist")
+            dpg.add_button(label="Ok", pos=(20, 85), width=70, height=30, callback=lambda:filesConfirmed(self.name[0:13], self.headDict["gen"]))
+            dpg.add_button(label="Cancel", pos=(100, 85), width=70, height=30, callback=destroyFileFoundWin)
 
             dpg.bind_item_font("graph_window_text", "proggyClean")
     
@@ -186,6 +200,28 @@ class AnimRun():
 # ---------
 # Functions
 # ---------
+
+def destroyFileFoundWin():
+    """Destroys load file dialog window"""
+    if dpg.does_alias_exist("load_brains"):
+        dpg.delete_item("load_brains")
+    if dpg.does_alias_exist("load_graph"):
+        dpg.delete_item("load_graph")
+    if dpg.does_alias_exist("graph_window_text"):
+        dpg.delete_item("graph_window_text")
+    if dpg.does_alias_exist("file_found_win"):
+        dpg.delete_item("file_found_win")
+
+def filesConfirmed(name, gen):
+    """Takes the values from checkboxes and calls coresponding file working functions"""
+    brainsEnabled = dpg.get_value("load_brains")
+    graphEnabled = dpg.get_value("load_graph")
+    if graphEnabled:
+        workWithGraphFile(name)
+    if brainsEnabled:
+        workWithBrainsFile(name, gen)
+    
+    destroyFileFoundWin()
 
 def updateGUI() -> None:
     """Updates GUI pos and width, responsivenes"""
@@ -211,9 +247,7 @@ def updateGUI() -> None:
     dpg.configure_item("stepsBtnN10", pos=(840-loadedData.offset+50, 450))
     dpg.configure_item("stepsBtnN50", pos=(840-loadedData.offset+100, 450))
 
-    dpg.configure_item("lfg_btn", pos=(840-loadedData.offset, 650), width=240+loadedData.offset)
-    dpg.configure_item("flg_txt", pos=(840-loadedData.offset, 705))
-    dpg.configure_item("sg_btn", pos=(840-loadedData.offset, 750), width=240+loadedData.offset)
+    dpg.configure_item("ci_txt", pos=(840-loadedData.offset, 500))
 
     createSimArea()
 
@@ -280,8 +314,6 @@ def workWithGraphFile(*args) -> None:
     """Takes path from selected file and sets it to graphPath global var."""
     global graphPath
     if len(args) == 1:
-        if dpg.does_item_exist("file_found_win"):
-            dpg.delete_item("file_found_win")
         tempPath = "./exports/graph_logs/"+args[0]+"_graph.txt"
         if not os.path.isfile(tempPath):
             return
@@ -292,6 +324,21 @@ def workWithGraphFile(*args) -> None:
     graphPath = tempPath
     fileName = graphPath.split("/")[-1]
     dpg.set_value("flg_txt", "Graph file loaded:\n"+fileName)
+
+def workWithBrainsFile(*args) -> None:
+    """Takes path from selected file and sets it to brainsPath global var."""
+    global brainsPath
+    if len(args) == 2:
+        tempPath = "./exports/brain_logs/"+args[0]+"_br_"+args[1]+".txt"
+        if not os.path.isfile(tempPath):
+            return
+    else:
+        tempPath = selectFile()
+        if not tempPath:
+            return
+    brainsPath = tempPath
+    fileName = brainsPath.split("/")[-1]
+    dpg.set_value("flb_txt", "Brains file loaded:\n"+fileName)
 
 
 def createGraphWin() -> None:
@@ -345,6 +392,46 @@ def createGraphWin() -> None:
                 dpg.add_line_series(aliveDataX, aliveDataY, label="Creatures survived")
 
     graphFile.close()
+
+def createBrainsWindow() -> None:
+    """Takes currently loaded path and creates brain graph out of it."""
+    if not brainsPath:
+        return
+
+    fileName = brainsPath.split("/")[-1]
+    if dpg.does_alias_exist(fileName):
+        dpg.delete_item(fileName)
+
+    brainsFile = open(brainsPath, 'r')
+    if not brainsFile:
+        return
+    
+    version = ""
+    headDictBrains = {"ver":"N/A"}
+
+    while True:
+        line = brainsFile.readline().strip("\n")
+        if not line:
+            break
+
+        pos = line.find("{")
+        lineKey = line[:pos]
+        lineVal = line[pos+1:-1]
+        if version == "" and lineKey != "head":
+            raise FileProcessingError("Expected header with version as first line on input file!")
+        match lineKey:
+            case "head": # Head line
+                values = lineVal[:-1].split(";")
+                for val in values:
+                    splitVal = val.split(":")
+                    headDictBrains[splitVal[0]] = splitVal[1]
+                if "ver" in headDictBrains.keys():
+                    version = headDictBrains["ver"]
+
+    with dpg.window(label=fileName, width=1000, height=600, pos=(400, 200), no_resize=True, tag=fileName):
+        pass
+
+
     
 def animate() -> None:
     """Calls needed functions to start the animation"""
@@ -388,6 +475,35 @@ def modStep(mod) -> None:
     createSimArea(animRun.currentStep)
     dpg.set_value("cs_txt", "Current step: " + str(animRun.currentStep) + " / " + str(len(loadedData.records)))
 
+def calculateMouseHover() -> None:
+    """Calculates which creature is the mouse hovering over and edits the information on sidebar
+    """
+    addText = "N/A"
+    currentStep = animRun.currentStep
+
+    if currentStep >= len(loadedData.records):
+        currentStep = len(loadedData.records)-1
+
+    if dpg.is_item_focused("animWindow") and loadedData.sqSize != 0:
+        mousePos = dpg.get_mouse_pos()
+
+        posX = (int(mousePos[0]-19))//loadedData.sqSize
+        posY = (int(mousePos[1]-19))//loadedData.sqSize
+
+        if posX >= 0 and posY >= 0 and posX < loadedData.grid[0] and posY < loadedData.grid[1]:
+            addText = "none"
+            for c in loadedData.records[currentStep].keys():
+                cPos = loadedData.records[currentStep][c]
+
+                if cPos[0] == posX and cPos[1] == posY:
+                    addText = str(c)
+                    break
+    
+    dpg.set_value("ci_txt", f"Creature ID: {addText}")
+
+    
+
+
 def createAnimationWindow() -> None:
     """Creation of GUI for animation window"""
     with dpg.window(label="Animation", width=1100, height=860, tag="animWindow",
@@ -414,10 +530,21 @@ def createAnimationWindow() -> None:
             dpg.add_button(label="-10", width=40, pos=(840-loadedData.offset+50, 450), tag="stepsBtnN10", callback=lambda:modStep(-10))
             dpg.add_button(label="-50", width=40, pos=(840-loadedData.offset+100, 450), tag="stepsBtnN50", callback=lambda:modStep(-50))
 
-            dpg.add_button(label="Load graph file", pos=(840-loadedData.offset, 650), width=240+loadedData.offset, height=50, callback=workWithGraphFile, tag="lfg_btn")
-            dpg.add_text("Graph file loaded:\n"+loadedData.name, pos=(840-loadedData.offset, 705), tag="flg_txt")
-            dpg.add_button(label="Show graph", pos=(840-loadedData.offset, 750), width=240+loadedData.offset, height=50, tag="sg_btn", callback=createGraphWin)
+            dpg.add_text("Creature ID: N/A", pos=(840-loadedData.offset, 500), tag="ci_txt")
+            
 
+
+def createGraphLoadWindow():
+    with dpg.window(label="Graph loading", width=280, height=210, pos=(1100, 0), no_close=True, no_resize=True, no_bring_to_front_on_focus=True):
+            dpg.add_button(label="Load graph file", pos=(20, 40), width=240, height=50, callback=workWithGraphFile)
+            dpg.add_text("Graph file loaded:\n"+loadedData.name, pos=(20, 95), tag="flg_txt")
+            dpg.add_button(label="Show graph", pos=(20, 140), width=240, height=50, callback=createGraphWin)
+
+def createBrainsLoadWindow():
+    with dpg.window(label="Brains loading", width=280, height=210, pos=(1380, 0), no_close=True, no_resize=True, no_bring_to_front_on_focus=True):
+            dpg.add_button(label="Load brains file", pos=(20, 40), width=240, height=50, callback=workWithBrainsFile)
+            dpg.add_text("Brains file loaded:\n"+loadedData.name, pos=(20, 95), tag="flb_txt")
+            dpg.add_button(label="Show brains", pos=(20, 140), width=240, height=50, callback=createBrainsWindow)
 
 
 # -------------
@@ -444,12 +571,22 @@ def main() -> None:
     global graphPath
     graphPath = None
 
+    # Creating global varible for brains path and setting to None
+    global brainsPath
+    brainsPath = None
+
     # Creating global object for animation running settings
     global animRun
     animRun = AnimRun()
 
     # Animation window init
     createAnimationWindow()
+
+    # Graph window init
+    createGraphLoadWindow()
+
+    # Brains window init
+    createBrainsLoadWindow()
 
     # Resolution
     global viewportWidth, viewportHeight
@@ -462,6 +599,7 @@ def main() -> None:
     dpg.maximize_viewport()
 
     # DPG main rendering loop
+    currentStep = 0
     while dpg.is_dearpygui_running():
         if animRun.animRunning:
             currTime = time.time()
@@ -472,9 +610,12 @@ def main() -> None:
             animRun.currentStep = currentStep
             dpg.set_value("cs_txt", "Current step: " + str(animRun.currentStep) + " / " + str(len(loadedData.records)))
             createSimArea(animRun.currentStep)
+
+        calculateMouseHover()
+        
         
         if loadedData.graphWinTime < int(time.time()) and dpg.does_alias_exist("file_found_win"):
-            dpg.delete_item("file_found_win")
+            destroyFileFoundWin()
         dpg.render_dearpygui_frame()
 
     # End of DPG stuff
